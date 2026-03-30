@@ -12,7 +12,7 @@ COPY requirements.txt .
 
 # Install CPU-only torch first from PyTorch index
 RUN pip install --no-cache-dir \
-    torch==2.0.1+cpu torchvision==0.15.2+cpu \
+    torch==2.1.0+cpu torchvision==0.16.0+cpu \
     --index-url https://download.pytorch.org/whl/cpu
 
 # Install remaining packages
