@@ -8,5 +8,5 @@ lxml
 langdetect
 numpy
 scikit-learn
-transformers==4.30.0
+transformers==4.35.0
 sentence-transformers==2.2.2
