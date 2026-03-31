@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime, timezone
 from typing import Any, Dict, List
 
@@ -16,7 +17,7 @@ class CompanyCreate(BaseModel):
     sector: str
     location: str
     description: str
-    user_id: str
+    user_id: str | None = None
 
 
 class ListingCreate(BaseModel):
@@ -41,13 +42,18 @@ class ScanRequest(BaseModel):
 
 app = FastAPI(title="CirclOS API")
 
-import os
-origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+origins_env = os.getenv("ALLOWED_ORIGINS", "*")
+origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+if not origins:
+    origins = ["*"]
+
+# Wildcard origins and credentials cannot be combined safely in browser CORS.
+allow_credentials = origins != ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )   
@@ -60,17 +66,37 @@ def root() -> Dict[str, str]:
 
 @app.post("/companies")
 def create_company(body: CompanyCreate) -> Dict[str, Any]:
+    payload = body.model_dump()
+    if not payload.get("user_id"):
+        payload["user_id"] = None
+
     try:
         response = (
             supabase.table("companies")
-            .insert(body.model_dump())
+            .insert(payload)
             .execute()
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed to create company: {exc}")
 
     if getattr(response, "error", None):
-        raise HTTPException(status_code=400, detail=str(response.error))
+        error_message = str(response.error)
+        # If user_id has a strict FK and the value is invalid, retry as null.
+        if payload.get("user_id") and "user_id" in error_message.lower() and "foreign key" in error_message.lower():
+            payload["user_id"] = None
+            retry_response = (
+                supabase.table("companies")
+                .insert(payload)
+                .execute()
+            )
+            if getattr(retry_response, "error", None):
+                raise HTTPException(status_code=400, detail=str(retry_response.error))
+            retry_data = getattr(retry_response, "data", None) or []
+            if not retry_data:
+                raise HTTPException(status_code=500, detail="Company not returned from Supabase")
+            return retry_data[0]
+
+        raise HTTPException(status_code=400, detail=error_message)
 
     data = getattr(response, "data", None) or []
     if not data:
