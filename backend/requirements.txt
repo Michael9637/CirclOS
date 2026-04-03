@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+supabase
+python-dotenv
+requests
+httpx
+beautifulsoup4
+lxml
+langdetect
+numpy
+scikit-learn
+sentence-transformers

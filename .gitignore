@@ -1,0 +1,31 @@
+# Python
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment files
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Virtual environments
+venv/
+.venv/
+backend/.venv/
+backend/venv/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Backup bundles generated during repo migration
+*.bundle
