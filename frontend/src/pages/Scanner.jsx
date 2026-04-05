@@ -9,6 +9,8 @@ const Scanner = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
+  const claims = Array.isArray(result?.claims) ? result.claims : [];
+
   const handleScan = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -27,8 +29,13 @@ const Scanner = () => {
         user_id: user.id,
       });
       setResult(data);
-    } catch {
-      setError("Scan failed. Check the URL and try again.");
+    } catch (scanError) {
+      const detail = scanError?.response?.data?.detail;
+      setError(
+        typeof detail === "string"
+          ? `Scan failed: ${detail}`
+          : "Scan failed. Check the URL and try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -119,7 +126,21 @@ const Scanner = () => {
             Detailed Claim Analysis
           </h2>
 
-          {result.claims.map((claim, index) => {
+          {claims.length === 0 && (
+            <div
+              style={{
+                padding: "12px",
+                borderRadius: "6px",
+                background: "#f5f5f5",
+                color: "#555",
+                marginBottom: "12px",
+              }}
+            >
+              No claim-level details were returned by the scanner.
+            </div>
+          )}
+
+          {claims.map((claim, index) => {
             const label = statusLabel(claim.status);
             return (
               <div
@@ -163,7 +184,7 @@ const Scanner = () => {
                   {claim.ecgt_risk}
                 </div>
                 <div style={{ marginTop: "6px", fontSize: "12px", color: "#666" }}>
-                  Keywords: {claim.keywords_found.join(", ")}
+                  Keywords: {Array.isArray(claim.keywords_found) ? claim.keywords_found.join(", ") : "n/a"}
                 </div>
               </div>
             );

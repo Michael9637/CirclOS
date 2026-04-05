@@ -82,15 +82,41 @@ def find_matches(listing_id: str, top_k: int = 5) -> List[Dict[str, Any]]:
     source_type = source.get("listing_type", "seller")
     opposite_type = "buyer" if source_type == "seller" else "seller"
 
-    cand_resp = (
-        supabase.table("waste_listings")
-        .select("*, companies(name, location, sector)")
-        .eq("status", "active")
-        .eq("listing_type", opposite_type)
-        .neq("id", listing_id)
-        .execute()
-    )
-    candidates = getattr(cand_resp, "data", []) or []
+    # Prefer relational select when FK metadata exists, but gracefully fall back
+    # for legacy deployments where companies relation is not declared.
+    relation_available = True
+    try:
+        cand_resp = (
+            supabase.table("waste_listings")
+            .select("*, companies(name, location, sector)")
+            .eq("status", "active")
+            .eq("listing_type", opposite_type)
+            .neq("id", listing_id)
+            .execute()
+        )
+        candidates = getattr(cand_resp, "data", []) or []
+    except Exception:
+        relation_available = False
+        cand_resp = (
+            supabase.table("waste_listings")
+            .select("*")
+            .eq("status", "active")
+            .eq("listing_type", opposite_type)
+            .neq("id", listing_id)
+            .execute()
+        )
+        candidates = getattr(cand_resp, "data", []) or []
+
+    # If no opposite listing_type exists (legacy schema), match against all actives except source.
+    if not candidates:
+        fallback_resp = (
+            supabase.table("waste_listings")
+            .select("*")
+            .eq("status", "active")
+            .neq("id", listing_id)
+            .execute()
+        )
+        candidates = getattr(fallback_resp, "data", []) or []
 
     scored = []
     for row in candidates:
@@ -104,6 +130,20 @@ def find_matches(listing_id: str, top_k: int = 5) -> List[Dict[str, Any]]:
         v = parse_embedding(row.get("embedding"))
         if v is None or v.size != source_emb.size:
             continue
+        if not relation_available and row.get("company_id") and not row.get("companies"):
+            try:
+                company_resp = (
+                    supabase.table("companies")
+                    .select("name, location, sector")
+                    .eq("id", row.get("company_id"))
+                    .limit(1)
+                    .execute()
+                )
+                company_data = getattr(company_resp, "data", []) or []
+                row["companies"] = company_data[0] if company_data else {}
+            except Exception:
+                row["companies"] = {}
+
         score = float(np.dot(source_emb, v))
         scored.append({"score": score, "listing": row})
 

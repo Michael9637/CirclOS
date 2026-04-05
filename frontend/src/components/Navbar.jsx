@@ -35,6 +35,8 @@ export default function Navbar() {
         <Link to="/" style={linkStyle('/')}>Dashboard</Link>
         <Link to="/list" style={linkStyle('/list')}>List Waste</Link>
         <Link to="/compliance" style={linkStyle('/compliance')}>Compliance</Link>
+        <Link to="/scanner" style={linkStyle('/scanner')}>Scanner</Link>
+        <Link to="/evidence" style={linkStyle('/evidence')}>Evidence</Link>
         <Link to="/register" style={linkStyle('/register')}>Register</Link>
       </div>
 

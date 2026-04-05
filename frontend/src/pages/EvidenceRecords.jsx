@@ -6,6 +6,7 @@ const EvidenceRecords = () => {
   const { user } = useAuth();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!user?.id) {
@@ -20,6 +21,8 @@ const EvidenceRecords = () => {
         setRecords(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Failed to fetch evidence records:", error);
+        const detail = error?.response?.data?.detail;
+        setError(typeof detail === "string" ? detail : "Could not load evidence records.");
         setRecords([]);
       } finally {
         setLoading(false);
@@ -41,6 +44,21 @@ const EvidenceRecords = () => {
       <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "10px" }}>
         Confirmed circular transactions with timestamped evidence records.
       </p>
+
+      {error && (
+        <div
+          style={{
+            background: "#ffebee",
+            border: "1px solid #ffcdd2",
+            borderRadius: "8px",
+            padding: "12px 14px",
+            color: "#b71c1c",
+            marginBottom: "10px",
+          }}
+        >
+          {error}
+        </div>
+      )}
 
       {records.length === 0 && (
         <div
