@@ -321,8 +321,10 @@ const Dashboard = () => {
                               similarity_score: match.score,
                             });
                             alert(`Match confirmed!\n\n${result.certificate_text}`);
-                          } catch {
-                            alert("Failed to confirm match.");
+                          } catch (error) {
+                            const detail = error?.response?.data?.detail;
+                            const message = typeof detail === "string" ? detail : "Failed to confirm match.";
+                            alert(`Failed to confirm match.\n\n${message}`);
                           }
                         }}
                         style={{
