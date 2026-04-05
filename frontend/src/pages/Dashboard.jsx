@@ -323,7 +323,11 @@ const Dashboard = () => {
                             alert(`Match confirmed!\n\n${result.certificate_text}`);
                           } catch (error) {
                             const detail = error?.response?.data?.detail;
-                            const message = typeof detail === "string" ? detail : "Failed to confirm match.";
+                            const message = typeof detail === "string"
+                              ? detail
+                              : detail
+                                ? JSON.stringify(detail)
+                                : "Please try again.";
                             alert(`Failed to confirm match.\n\n${message}`);
                           }
                         }}

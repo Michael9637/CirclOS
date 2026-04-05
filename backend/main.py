@@ -31,8 +31,8 @@ class ListingCreate(BaseModel):
 
 
 class MatchConfirm(BaseModel):
-    listing_id: str
-    matched_listing_id: str
+    listing_id: int | str
+    matched_listing_id: int | str
     similarity_score: float
 
 
