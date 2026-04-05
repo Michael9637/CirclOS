@@ -45,9 +45,21 @@ class ScanRequest(BaseModel):
 app = FastAPI(title="CirclOS API")
 
 origins_env = os.getenv("ALLOWED_ORIGINS", "*")
-origins = [origin.strip() for origin in origins_env.split(",") if origin.strip()]
-if not origins:
+
+# Keep production usable even if ALLOWED_ORIGINS is misconfigured.
+default_origins = {
+    "https://circlosat.vercel.app",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+}
+
+parsed_origins = {origin.strip() for origin in origins_env.split(",") if origin.strip()}
+if not parsed_origins or "*" in parsed_origins:
     origins = ["*"]
+else:
+    origins = sorted(default_origins.union(parsed_origins))
 
 # Wildcard origins and credentials cannot be combined safely in browser CORS.
 allow_credentials = origins != ["*"]
@@ -137,8 +149,10 @@ def _insert_listing_with_schema_fallback(payload: Dict[str, Any]) -> Dict[str, A
 
 
 def _is_missing_listing_type_column_error(error_message: str) -> bool:
-    normalized = (error_message or "").lower()
-    return "listing_type" in normalized and "does not exist" in normalized
+    normalized = " ".join((error_message or "").lower().split())
+    mentions_column = "listing_type" in normalized or "listing type" in normalized
+    missing_column = "does not exist" in normalized or "code': '42703" in normalized or 'code": "42703' in normalized
+    return mentions_column and missing_column
 
 
 def _coerce_listings_by_type(listings: List[Dict[str, Any]], listing_type: str | None) -> List[Dict[str, Any]]:
