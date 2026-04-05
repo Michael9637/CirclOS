@@ -21,19 +21,19 @@ export default function ComplianceDashboard() {
         <Panel
           title="Website Scanner"
           text="Scan your website for potentially non-compliant green claims."
-          linkTo="/scanner"
+          linkTo="/app/scanner"
           linkLabel="Open Scanner"
         />
         <Panel
           title="Evidence Records"
           text="Review confirmed match records that can support claim substantiation."
-          linkTo="/evidence"
+          linkTo="/app/evidence"
           linkLabel="View Evidence"
         />
         <Panel
           title="Waste Listings"
           text="Keep listings current to generate fresh transaction evidence over time."
-          linkTo="/list"
+          linkTo="/app/list"
           linkLabel="Manage Listings"
         />
       </div>

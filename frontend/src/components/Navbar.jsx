@@ -1,10 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from './useAuth'
 
 export default function Navbar() {
   const { user, supabase } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
@@ -37,7 +39,7 @@ export default function Navbar() {
       alignItems: 'stretch', height: '58px', position: 'sticky',
       top: 0, zIndex: 100, boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
     }}>
-      <Link to="/" style={{
+      <Link to="/app/dashboard" style={{
         color: 'white', fontSize: '20px', fontWeight: '700',
         textDecoration: 'none', display: 'flex', alignItems: 'center',
         letterSpacing: '-0.5px'
@@ -46,11 +48,11 @@ export default function Navbar() {
       </Link>
 
       <div style={{ display: 'flex', alignItems: 'stretch', marginLeft: '32px' }}>
-        <Link to="/" style={linkStyle('/')}>Dashboard</Link>
-        <Link to="/list" style={linkStyle('/list')}>List Waste</Link>
-        <Link to="/compliance" style={linkStyle('/compliance')}>Compliance</Link>
-        <Link to="/scanner" style={linkStyle('/scanner')}>Scanner</Link>
-        <Link to="/evidence" style={linkStyle('/evidence')}>Evidence</Link>
+        <Link to="/app/dashboard" style={linkStyle('/app/dashboard')}>Dashboard</Link>
+        <Link to="/app/list" style={linkStyle('/app/list')}>List Waste</Link>
+        <Link to="/app/compliance" style={linkStyle('/app/compliance')}>Compliance</Link>
+        <Link to="/app/scanner" style={linkStyle('/app/scanner')}>Scanner</Link>
+        <Link to="/app/evidence" style={linkStyle('/app/evidence')}>Evidence</Link>
       </div>
 
       {user && (
@@ -90,7 +92,7 @@ export default function Navbar() {
               }}
             >
               <Link
-                to="/profile"
+                to="/app/profile"
                 onClick={() => setMenuOpen(false)}
                 style={{
                   display: 'block',
@@ -106,6 +108,7 @@ export default function Navbar() {
                 onClick={() => {
                   setMenuOpen(false)
                   supabase.auth.signOut()
+                  navigate('/')
                 }}
                 style={{
                   width: '100%',

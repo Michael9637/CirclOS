@@ -3,6 +3,7 @@ import AuthProvider from './components/AuthProvider'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
 import Navbar from './components/Navbar'
+import HomePage from './pages/HomePage'
 import Dashboard from './pages/Dashboard'
 import ListWaste from './pages/ListWaste'
 import Profile from './pages/Profile'
@@ -22,8 +23,16 @@ export default function App() {
         {configErrors.length > 0 && <ConfigBanner messages={configErrors} />}
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/*" element={<AuthenticatedApp />} />
+            <Route path="/dashboard" element={<Navigate to="/app/dashboard" replace />} />
+            <Route path="/list" element={<Navigate to="/app/list" replace />} />
+            <Route path="/profile" element={<Navigate to="/app/profile" replace />} />
+            <Route path="/register" element={<Navigate to="/app/profile" replace />} />
+            <Route path="/compliance" element={<Navigate to="/app/compliance" replace />} />
+            <Route path="/scanner" element={<Navigate to="/app/scanner" replace />} />
+            <Route path="/evidence" element={<Navigate to="/app/evidence" replace />} />
+            <Route path="/app/*" element={<AuthenticatedApp />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
@@ -37,14 +46,14 @@ function AuthenticatedApp() {
       <Navbar />
       <div style={{ maxWidth: '960px', margin: '0 auto', padding: '32px 24px' }}>
         <Routes>
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/list" element={<ProtectedRoute><ListWaste /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/register" element={<Navigate to="/profile" replace />} />
+          <Route path="/register" element={<Navigate to="/app/profile" replace />} />
           <Route path="/compliance" element={<ProtectedRoute><ComplianceDashboard /></ProtectedRoute>} />
           <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
           <Route path="/evidence" element={<ProtectedRoute><EvidenceRecords /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
         </Routes>
       </div>
     </>
