@@ -70,6 +70,22 @@ export const createCompany = async (data) => {
   }
 };
 
+export const getMyCompany = async (userId) => {
+  if (!userId) {
+    throw new Error("userId is required");
+  }
+
+  try {
+    const response = await api.get("/companies/me", {
+      params: { user_id: userId },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching company profile:", error);
+    throw error;
+  }
+};
+
 export const createListing = async (data) => {
   try {
     const response = await api.post("/listings", data);

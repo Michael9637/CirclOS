@@ -220,6 +220,30 @@ def create_company(body: CompanyCreate) -> Dict[str, Any]:
     return data[0]
 
 
+@app.get("/companies/me")
+def get_company_for_user(user_id: str) -> Dict[str, Any]:
+    try:
+        response = (
+            supabase.table("companies")
+            .select("*")
+            .eq("user_id", user_id)
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch company: {exc}")
+
+    if getattr(response, "error", None):
+        raise HTTPException(status_code=400, detail=str(response.error))
+
+    data = getattr(response, "data", None) or []
+    if not data:
+        raise HTTPException(status_code=404, detail="No company profile found for this user.")
+
+    return data[0]
+
+
 @app.post("/listings")
 def create_listing(body: ListingCreate) -> Dict[str, Any]:
     payload = body.model_dump(exclude_none=True)

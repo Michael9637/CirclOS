@@ -5,7 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import Navbar from './components/Navbar'
 import Dashboard from './pages/Dashboard'
 import ListWaste from './pages/ListWaste'
-import RegisterCompany from './pages/RegisterCompany'
+import Profile from './pages/Profile'
 import ComplianceDashboard from './pages/ComplianceDashboard'
 import Login from './pages/Login'
 import Scanner from './pages/Scanner'
@@ -39,7 +39,8 @@ function AuthenticatedApp() {
         <Routes>
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/list" element={<ProtectedRoute><ListWaste /></ProtectedRoute>} />
-          <Route path="/register" element={<ProtectedRoute><RegisterCompany /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/register" element={<Navigate to="/profile" replace />} />
           <Route path="/compliance" element={<ProtectedRoute><ComplianceDashboard /></ProtectedRoute>} />
           <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
           <Route path="/evidence" element={<ProtectedRoute><EvidenceRecords /></ProtectedRoute>} />

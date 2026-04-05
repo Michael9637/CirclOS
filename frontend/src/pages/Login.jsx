@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase, supabaseConfigError } from '../supabase'
 import { useNavigate } from 'react-router-dom'
+import { createCompany } from '../api'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -9,6 +10,12 @@ export default function Login() {
   const [error, setError] = useState('')
   const [mode, setMode] = useState('login')
   const [message, setMessage] = useState('')
+  const [companyForm, setCompanyForm] = useState({
+    name: '',
+    sector: '',
+    location: '',
+    description: '',
+  })
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -22,11 +29,33 @@ export default function Login() {
       if (error) setError(error.message)
       else navigate('/')
     } else {
-      const { error } = await supabase.auth.signUp({ email, password })
-      if (error) setError(error.message)
-      else setMessage('Check your email to confirm your account, then sign in.')
+      const { data, error } = await supabase.auth.signUp({ email, password })
+      if (error) {
+        setError(error.message)
+      } else {
+        const signupUserId = data?.user?.id
+        if (signupUserId) {
+          try {
+            await createCompany({
+              ...companyForm,
+              user_id: signupUserId,
+            })
+            setMessage('Account created and company profile saved. Check your email to confirm your account, then sign in.')
+          } catch (companyError) {
+            const detail = companyError?.response?.data?.detail
+            setError(typeof detail === 'string' ? detail : 'Account created, but company profile setup failed. You can complete it later in Profile.')
+          }
+        } else {
+          setMessage('Account created. Check your email to confirm your account, then sign in.')
+        }
+      }
     }
     setLoading(false)
+  }
+
+  const handleCompanyChange = (event) => {
+    const { name, value } = event.target
+    setCompanyForm((prev) => ({ ...prev, [name]: value }))
   }
 
   const card = {
@@ -104,6 +133,63 @@ export default function Login() {
             onChange={e => setPassword(e.target.value)}
             style={inputStyle}
           />
+
+          {mode === 'signup' && (
+            <>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                Company Information
+              </div>
+
+              <label style={{ fontSize: '13px', fontWeight: '500', color: '#5c5c58' }}>
+                Company Name
+              </label>
+              <input
+                name="name"
+                type="text"
+                value={companyForm.name}
+                required
+                onChange={handleCompanyChange}
+                style={inputStyle}
+              />
+
+              <label style={{ fontSize: '13px', fontWeight: '500', color: '#5c5c58' }}>
+                Sector
+              </label>
+              <input
+                name="sector"
+                type="text"
+                value={companyForm.sector}
+                required
+                onChange={handleCompanyChange}
+                style={inputStyle}
+              />
+
+              <label style={{ fontSize: '13px', fontWeight: '500', color: '#5c5c58' }}>
+                Location
+              </label>
+              <input
+                name="location"
+                type="text"
+                value={companyForm.location}
+                required
+                onChange={handleCompanyChange}
+                style={inputStyle}
+              />
+
+              <label style={{ fontSize: '13px', fontWeight: '500', color: '#5c5c58' }}>
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={companyForm.description}
+                onChange={handleCompanyChange}
+                rows={3}
+                style={{ ...inputStyle, resize: 'vertical' }}
+                placeholder="Describe your company and material flows"
+              />
+            </>
+          )}
+
           <button type="submit" disabled={loading} style={btnStyle}>
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
           </button>
