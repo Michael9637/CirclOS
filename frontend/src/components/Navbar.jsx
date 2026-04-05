@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from './AuthProvider'
+import { useAuth } from './useAuth'
 
 export default function Navbar() {
   const { user, supabase } = useAuth()

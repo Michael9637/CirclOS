@@ -11,6 +11,8 @@ Monorepo containing backend (FastAPI) and frontend (Vite + React).
 
 - Railway Root Directory: backend
 - Vercel Root Directory: frontend
+- Live Backend URL: https://circlos-production.up.railway.app
+- Live Frontend URL: https://circlosat.vercel.app
 
 ## Environment Variables
 

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { scanWebsite } from "../api";
+import { useAuth } from "../components/useAuth";
 
 const Scanner = () => {
+  const { user } = useAuth();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -13,13 +15,19 @@ const Scanner = () => {
     setResult(null);
     setError(null);
 
+    if (!user?.id) {
+      setError("You must be signed in to run a scan.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await scanWebsite({
         url,
-        company_id: "00000000-0000-0000-0000-000000000001",
+        user_id: user.id,
       });
       setResult(data);
-    } catch (err) {
+    } catch {
       setError("Scan failed. Check the URL and try again.");
     } finally {
       setLoading(false);

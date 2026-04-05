@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { createListing } from "../api";
+import { useAuth } from "../components/useAuth";
 
 const ListWaste = () => {
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
-    company_id: "00000000-0000-0000-0000-000000000001",
     listing_type: "seller",
     material_type: "",
     volume_kg_per_month: "",
@@ -29,9 +31,16 @@ const ListWaste = () => {
     setSuccessMessage("");
     setErrorMessage("");
 
+    if (!user?.id) {
+      setErrorMessage("You must be signed in to create listings.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const payload = {
         ...formData,
+        user_id: user.id,
         volume_kg_per_month: formData.volume_kg_per_month
           ? Number(formData.volume_kg_per_month)
           : 0,
@@ -40,14 +49,13 @@ const ListWaste = () => {
       await createListing(payload);
       setSuccessMessage("Waste stream listed successfully.");
       setFormData({
-        company_id: "00000000-0000-0000-0000-000000000001",
         listing_type: "seller",
         material_type: "",
         volume_kg_per_month: "",
         legal_classification: "sekundaerrohstoff",
         description: "",
       });
-    } catch (error) {
+    } catch {
       setErrorMessage(
         "Something went wrong while listing your waste stream. Please try again."
       );
@@ -150,14 +158,6 @@ const ListWaste = () => {
 
       <div style={formContainerStyle}>
         <form onSubmit={handleSubmit}>
-          {/* Hidden company_id field */}
-          <input
-            type="hidden"
-            name="company_id"
-            value={formData.company_id}
-            readOnly
-          />
-
           <div style={fieldStyle}>
             <label htmlFor="listing_type" style={labelStyle}>
               I am a...

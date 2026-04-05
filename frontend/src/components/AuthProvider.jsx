@@ -1,26 +1,31 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase, supabaseConfigError } from '../supabase'
-
-const AuthContext = createContext(null)
-
-export function useAuth() {
-  return useContext(AuthContext)
-}
+import { AuthContext } from './AuthContext'
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(Boolean(supabase))
 
   useEffect(() => {
     if (!supabase) {
-      setLoading(false)
-      return
+      return undefined
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    let isMounted = true
+
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        if (!isMounted) {
+          return
+        }
+        setUser(session?.user ?? null)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (isMounted) {
+          setLoading(false)
+        }
+      })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
@@ -28,7 +33,10 @@ export default function AuthProvider({ children }) {
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   if (loading) {

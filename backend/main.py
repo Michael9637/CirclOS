@@ -21,7 +21,8 @@ class CompanyCreate(BaseModel):
 
 
 class ListingCreate(BaseModel):
-    company_id: str
+    company_id: str | None = None
+    user_id: str | None = None
     listing_type: str = "seller"
     material_type: str
     volume_kg_per_month: float
@@ -37,7 +38,8 @@ class MatchConfirm(BaseModel):
 
 class ScanRequest(BaseModel):
     url: str
-    company_id: str = "00000000-0000-0000-0000-000000000001"
+    company_id: str | None = None
+    user_id: str | None = None
 
 
 app = FastAPI(title="CirclOS API")
@@ -57,6 +59,98 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )   
+
+
+def _resolve_company_id(company_id: str | None = None, user_id: str | None = None) -> str:
+    if company_id:
+        return company_id
+
+    if not user_id:
+        raise HTTPException(status_code=400, detail="company_id or user_id is required")
+
+    try:
+        response = (
+            supabase.table("companies")
+            .select("id")
+            .eq("user_id", user_id)
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to resolve company for user: {exc}")
+
+    if getattr(response, "error", None):
+        raise HTTPException(status_code=400, detail=str(response.error))
+
+    data = getattr(response, "data", None) or []
+    if not data or not data[0].get("id"):
+        raise HTTPException(status_code=404, detail="No company found for user. Register company first.")
+
+    return data[0]["id"]
+
+
+def _insert_listing_with_schema_fallback(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Insert a listing while tolerating older schemas that lack listing_type."""
+    try:
+        response = (
+            supabase.table("waste_listings")
+            .insert(payload)
+            .execute()
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to create listing: {exc}")
+
+    if getattr(response, "error", None):
+        error_message = str(response.error)
+
+        # Backward compatibility for older deployments that do not have listing_type.
+        if payload.get("listing_type") and "listing_type" in error_message.lower():
+            fallback_payload = dict(payload)
+            fallback_payload.pop("listing_type", None)
+
+            try:
+                retry_response = (
+                    supabase.table("waste_listings")
+                    .insert(fallback_payload)
+                    .execute()
+                )
+            except Exception as exc:
+                raise HTTPException(status_code=500, detail=f"Failed to create listing: {exc}")
+
+            if getattr(retry_response, "error", None):
+                raise HTTPException(status_code=400, detail=str(retry_response.error))
+
+            retry_data = getattr(retry_response, "data", None) or []
+            if not retry_data:
+                raise HTTPException(status_code=500, detail="Listing not returned from Supabase")
+
+            return retry_data[0]
+
+        raise HTTPException(status_code=400, detail=error_message)
+
+    data = getattr(response, "data", None) or []
+    if not data:
+        raise HTTPException(status_code=500, detail="Listing not returned from Supabase")
+
+    return data[0]
+
+
+def _is_missing_listing_type_column_error(error_message: str) -> bool:
+    normalized = (error_message or "").lower()
+    return "listing_type" in normalized and "does not exist" in normalized
+
+
+def _coerce_listings_by_type(listings: List[Dict[str, Any]], listing_type: str | None) -> List[Dict[str, Any]]:
+    if not listing_type:
+        return listings
+
+    has_listing_type = any(isinstance(item, dict) and "listing_type" in item for item in listings)
+    if not has_listing_type:
+        # Legacy schema had only seller-style listings and no listing_type column.
+        return listings if listing_type == "seller" else []
+
+    return [item for item in listings if item.get("listing_type") == listing_type]
 
 
 @app.get("/")
@@ -107,23 +201,12 @@ def create_company(body: CompanyCreate) -> Dict[str, Any]:
 
 @app.post("/listings")
 def create_listing(body: ListingCreate) -> Dict[str, Any]:
-    try:
-        response = (
-            supabase.table("waste_listings")
-            .insert(body.model_dump())
-            .execute()
-        )
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Failed to create listing: {exc}")
-
-    if getattr(response, "error", None):
-        raise HTTPException(status_code=400, detail=str(response.error))
-
-    data = getattr(response, "data", None) or []
-    if not data:
-        raise HTTPException(status_code=500, detail="Listing not returned from Supabase")
-
-    listing = data[0]
+    payload = body.model_dump(exclude_none=True)
+    payload["company_id"] = _resolve_company_id(payload.get("company_id"), payload.get("user_id"))
+    payload.pop("user_id", None)
+    if not payload.get("listing_type"):
+        payload.pop("listing_type", None)
+    listing = _insert_listing_with_schema_fallback(payload)
 
     # Embedding is best-effort so listing creation never fails due to model cold start.
     try:
@@ -136,18 +219,40 @@ def create_listing(body: ListingCreate) -> Dict[str, Any]:
 
 @app.get("/listings")
 def list_active_listings(listing_type: str | None = None) -> List[Dict[str, Any]]:
+    base_query = supabase.table("waste_listings").select("*").eq("status", "active")
+
     try:
-        query = supabase.table("waste_listings").select("*").eq("status", "active")
+        query = base_query
         if listing_type:
             query = query.eq("listing_type", listing_type)
         response = query.execute()
     except Exception as exc:
+        if listing_type and _is_missing_listing_type_column_error(str(exc)):
+            try:
+                fallback_response = base_query.execute()
+            except Exception as fallback_exc:
+                raise HTTPException(status_code=500, detail=f"Failed to fetch listings: {fallback_exc}")
+
+            fallback_data = getattr(fallback_response, "data", []) or []
+            return _coerce_listings_by_type(fallback_data, listing_type)
+
         raise HTTPException(status_code=500, detail=f"Failed to fetch listings: {exc}")
 
     if getattr(response, "error", None):
-        raise HTTPException(status_code=400, detail=str(response.error))
+        error_message = str(response.error)
+        if listing_type and _is_missing_listing_type_column_error(error_message):
+            try:
+                fallback_response = base_query.execute()
+            except Exception as fallback_exc:
+                raise HTTPException(status_code=500, detail=f"Failed to fetch listings: {fallback_exc}")
 
-    return getattr(response, "data", []) or []
+            fallback_data = getattr(fallback_response, "data", []) or []
+            return _coerce_listings_by_type(fallback_data, listing_type)
+
+        raise HTTPException(status_code=400, detail=error_message)
+
+    data = getattr(response, "data", []) or []
+    return _coerce_listings_by_type(data, listing_type)
 
 
 @app.get("/listings/{listing_id}")
@@ -245,11 +350,14 @@ def confirm_match(body: MatchConfirm):
 
 
 @app.get("/evidence")
-def get_evidence_records() -> List[Dict[str, Any]]:
+def get_evidence_records(company_id: str | None = None, user_id: str | None = None) -> List[Dict[str, Any]]:
+    resolved_company_id = _resolve_company_id(company_id, user_id)
+
     try:
         response = (
             supabase.table("evidence_records")
             .select("*")
+            .or_(f"seller_company_id.eq.{resolved_company_id},buyer_company_id.eq.{resolved_company_id}")
             .order("confirmed_at", desc=True)
             .execute()
         )
@@ -263,6 +371,8 @@ def get_evidence_records() -> List[Dict[str, Any]]:
 def scan_website(body: ScanRequest):
     from scanner import scrape_url, classify_claims
 
+    resolved_company_id = _resolve_company_id(body.company_id, body.user_id)
+
     try:
         sentences = scrape_url(body.url)
     except Exception as exc:
@@ -274,7 +384,7 @@ def scan_website(body: ScanRequest):
 
     try:
         supabase.table("compliance_scans").insert({
-            "company_id": body.company_id,
+            "company_id": resolved_company_id,
             "url_scanned": body.url,
             "claims_found": claims,
             "scan_status": "complete",

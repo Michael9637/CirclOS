@@ -1,6 +1,17 @@
 import axios from "axios";
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL || "").trim();
+const rawApiUrl = (import.meta.env.VITE_API_URL || "").trim();
+
+const normalizeApiBaseUrl = (value) => {
+  if (!value) {
+    return "";
+  }
+
+  const withProtocol = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  return withProtocol.replace(/\/+$/, "");
+};
+
+const API_BASE_URL = normalizeApiBaseUrl(rawApiUrl);
 const isProd = import.meta.env.PROD;
 
 export const apiConfigError = isProd && !API_BASE_URL
@@ -13,6 +24,34 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+const isMissingListingTypeColumnError = (error) => {
+  const detail = error?.response?.data?.detail;
+  if (typeof detail !== "string") {
+    return false;
+  }
+
+  const normalized = detail.toLowerCase();
+  return normalized.includes("listing_type") && normalized.includes("does not exist");
+};
+
+const hasListingTypeField = (listings) =>
+  listings.some((listing) =>
+    Object.prototype.hasOwnProperty.call(listing ?? {}, "listing_type")
+  );
+
+const coerceListingsByType = (listings, listingType) => {
+  if (!listingType) {
+    return listings;
+  }
+
+  if (!hasListingTypeField(listings)) {
+    // Legacy schema had only seller-style listings and no listing_type column.
+    return listingType === "seller" ? listings : [];
+  }
+
+  return listings.filter((listing) => listing?.listing_type === listingType);
+};
 
 api.interceptors.request.use((config) => {
   if (apiConfigError) {
@@ -56,10 +95,24 @@ export const getListingsByType = async (listingType) => {
     const response = await api.get("/listings", {
       params: { listing_type: listingType },
     });
-    return response.data;
+    const listings = Array.isArray(response.data) ? response.data : [];
+    return coerceListingsByType(listings, listingType);
   } catch (error) {
-    console.error(`Error fetching ${listingType} listings:`, error);
-    throw error;
+    if (!isMissingListingTypeColumnError(error)) {
+      console.error(`Error fetching ${listingType} listings:`, error);
+      throw error;
+    }
+
+    try {
+      const fallbackResponse = await api.get("/listings");
+      const fallbackListings = Array.isArray(fallbackResponse.data)
+        ? fallbackResponse.data
+        : [];
+      return coerceListingsByType(fallbackListings, listingType);
+    } catch (fallbackError) {
+      console.error(`Error fetching fallback listings for ${listingType}:`, fallbackError);
+      throw fallbackError;
+    }
   }
 };
 
@@ -103,9 +156,15 @@ export const scanWebsite = async (payload) => {
   }
 };
 
-export const getEvidenceRecords = async () => {
+export const getEvidenceRecords = async (userId) => {
+  if (!userId) {
+    return [];
+  }
+
   try {
-    const response = await api.get("/evidence");
+    const response = await api.get("/evidence", {
+      params: { user_id: userId },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching evidence records:", error);

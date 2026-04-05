@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createCompany } from '../api'
-import { useAuth } from '../components/AuthProvider'
+import { useAuth } from '../components/useAuth'
 
 export default function RegisterCompany() {
   const { user } = useAuth()

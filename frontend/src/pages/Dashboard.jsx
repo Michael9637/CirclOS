@@ -299,7 +299,7 @@ const Dashboard = () => {
                               similarity_score: match.score,
                             });
                             alert(`Match confirmed!\n\n${result.certificate_text}`);
-                          } catch (e) {
+                          } catch {
                             alert("Failed to confirm match.");
                           }
                         }}

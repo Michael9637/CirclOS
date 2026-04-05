@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { getEvidenceRecords } from "../api";
+import { useAuth } from "../components/useAuth";
 
 const EvidenceRecords = () => {
+  const { user } = useAuth();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user?.id) {
+      setRecords([]);
+      setLoading(false);
+      return;
+    }
+
     const fetchEvidence = async () => {
       try {
-        const data = await getEvidenceRecords();
+        const data = await getEvidenceRecords(user.id);
         setRecords(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Failed to fetch evidence records:", error);
@@ -19,7 +27,7 @@ const EvidenceRecords = () => {
     };
 
     fetchEvidence();
-  }, []);
+  }, [user?.id]);
 
   if (loading) {
     return <p style={{ color: "#6b7280" }}>Loading evidence records...</p>;

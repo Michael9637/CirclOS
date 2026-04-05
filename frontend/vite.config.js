@@ -3,8 +3,11 @@ import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
-  const apiUrl = env.VITE_API_URL || "http://localhost:8000";
+  const env = loadEnv(mode, ".", "");
+  const rawApiUrl = env.VITE_API_URL || "http://localhost:8000";
+  const apiUrl = (/^https?:\/\//i.test(rawApiUrl)
+    ? rawApiUrl
+    : `https://${rawApiUrl}`).replace(/\/+$/, "");
 
   return {
     plugins: [react()],
