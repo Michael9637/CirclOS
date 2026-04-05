@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
 from typing import Any, Dict, List
 
 import numpy as np
+
+os.environ.setdefault("SENTENCE_TRANSFORMERS_HOME", "/tmp/sentence_transformers")
 from sentence_transformers import SentenceTransformer
 
 from database import supabase
