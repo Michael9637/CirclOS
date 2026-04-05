@@ -185,6 +185,60 @@ def create_company(body: CompanyCreate) -> Dict[str, Any]:
     if not payload.get("user_id"):
         payload["user_id"] = None
 
+    if payload.get("user_id"):
+        try:
+            existing_response = (
+                supabase.table("companies")
+                .select("id")
+                .eq("user_id", payload["user_id"])
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Failed to check existing company: {exc}")
+
+        if getattr(existing_response, "error", None):
+            raise HTTPException(status_code=400, detail=str(existing_response.error))
+
+        existing_data = getattr(existing_response, "data", None) or []
+        if existing_data and existing_data[0].get("id"):
+            company_id = existing_data[0]["id"]
+
+            try:
+                update_response = (
+                    supabase.table("companies")
+                    .update(payload)
+                    .eq("id", company_id)
+                    .execute()
+                )
+            except Exception as exc:
+                raise HTTPException(status_code=500, detail=f"Failed to update company: {exc}")
+
+            if getattr(update_response, "error", None):
+                raise HTTPException(status_code=400, detail=str(update_response.error))
+
+            update_data = getattr(update_response, "data", None) or []
+            if update_data:
+                return update_data[0]
+
+            try:
+                reload_response = (
+                    supabase.table("companies")
+                    .select("*")
+                    .eq("id", company_id)
+                    .limit(1)
+                    .execute()
+                )
+            except Exception as exc:
+                raise HTTPException(status_code=500, detail=f"Failed to fetch updated company: {exc}")
+
+            reload_data = getattr(reload_response, "data", None) or []
+            if not reload_data:
+                raise HTTPException(status_code=500, detail="Updated company not returned from Supabase")
+
+            return reload_data[0]
+
     try:
         response = (
             supabase.table("companies")
