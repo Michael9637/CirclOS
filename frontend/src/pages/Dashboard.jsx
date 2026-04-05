@@ -6,6 +6,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState({});
   const [loadingMatch, setLoadingMatch] = useState({});
+  const [matchErrors, setMatchErrors] = useState({});
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -48,13 +49,18 @@ const Dashboard = () => {
 
   const handleFindMatches = async (listingId) => {
     setLoadingMatch((prev) => ({ ...prev, [listingId]: true }));
+    setMatchErrors((prev) => ({ ...prev, [listingId]: "" }));
     try {
       const result = await getMatches(listingId);
       const matchList = Array.isArray(result?.matches) ? result.matches : [];
       setMatches((prev) => ({ ...prev, [listingId]: matchList }));
     } catch (error) {
       console.error(`Failed to fetch matches for listing ${listingId}:`, error);
-      setMatches((prev) => ({ ...prev, [listingId]: [] }));
+      const detail = error?.response?.data?.detail;
+      setMatchErrors((prev) => ({
+        ...prev,
+        [listingId]: typeof detail === "string" ? detail : "Could not fetch matches right now.",
+      }));
     } finally {
       setLoadingMatch((prev) => ({ ...prev, [listingId]: false }));
     }
@@ -172,6 +178,22 @@ const Dashboard = () => {
               >
                 No buyers found yet — more companies joining soon.
               </p>
+            )}
+
+            {matchErrors[id] && (
+              <div
+                style={{
+                  marginTop: "10px",
+                  padding: "10px",
+                  borderRadius: "6px",
+                  background: "#ffebee",
+                  color: "#b71c1c",
+                  fontSize: "13px",
+                  lineHeight: 1.4,
+                }}
+              >
+                Match lookup failed: {matchErrors[id]}
+              </div>
             )}
 
             {Array.isArray(matches[id]) && matches[id].length > 0 && (
