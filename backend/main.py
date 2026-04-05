@@ -83,7 +83,7 @@ def _resolve_company_id(company_id: str | None = None, user_id: str | None = Non
     try:
         response = (
             supabase.table("companies")
-            .select("id")
+            .select("id, user_id")
             .eq("user_id", user_id)
             .order("created_at", desc=True)
             .limit(1)
@@ -96,10 +96,17 @@ def _resolve_company_id(company_id: str | None = None, user_id: str | None = Non
         raise HTTPException(status_code=400, detail=str(response.error))
 
     data = getattr(response, "data", None) or []
-    if not data or not data[0].get("id"):
+    if not data:
         raise HTTPException(status_code=404, detail="No company found for user. Register company first.")
 
-    return data[0]["id"]
+    company = data[0]
+    # Prefer UUID user_id when available so waste_listings.company_id stays
+    # compatible with deployments where company references are UUID-based.
+    resolved = company.get("user_id") or company.get("id")
+    if not resolved:
+        raise HTTPException(status_code=404, detail="No company identifier found for user. Register company again.")
+
+    return str(resolved)
 
 
 def _insert_listing_with_schema_fallback(payload: Dict[str, Any]) -> Dict[str, Any]:
