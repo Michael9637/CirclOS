@@ -431,7 +431,7 @@ def confirm_match(body: MatchConfirm):
         match_data = getattr(match_resp, "data", None) or []
         match_id = match_data[0].get("id") if match_data else ""
 
-        supabase.table("evidence_records").insert({
+        evidence_payload = {
             "match_id": match_id,
             "seller_company_id": seller.get("company_id", ""),
             "buyer_company_id": buyer.get("company_id", ""),
@@ -440,7 +440,25 @@ def confirm_match(body: MatchConfirm):
             "awg_classification": seller.get("legal_classification", ""),
             "confirmed_at": now_iso,
             "certificate_text": cert_text,
-        }).execute()
+        }
+
+        try:
+            evidence_resp = supabase.table("evidence_records").insert(evidence_payload).execute()
+            if getattr(evidence_resp, "error", None):
+                raise RuntimeError(str(evidence_resp.error))
+        except Exception as evidence_exc:
+            evidence_message = str(evidence_exc)
+            if "uuid" in evidence_message.lower() or "22p02" in evidence_message.lower():
+                fallback_payload = dict(evidence_payload)
+                fallback_payload.pop("match_id", None)
+                try:
+                    fallback_resp = supabase.table("evidence_records").insert(fallback_payload).execute()
+                    if getattr(fallback_resp, "error", None):
+                        raise RuntimeError(str(fallback_resp.error))
+                except Exception as fallback_exc:
+                    raise HTTPException(status_code=500, detail=f"Match confirmed, but evidence record save failed: {fallback_exc}")
+            else:
+                raise HTTPException(status_code=500, detail=f"Match confirmed, but evidence record save failed: {evidence_exc}")
         return {"status": "confirmed", "certificate_text": cert_text}
     except HTTPException:
         raise
