@@ -263,6 +263,24 @@ input, textarea, select, button { font-family: inherit; font-size: inherit; }
   flex-wrap: wrap;
 }
 
+.hero-conversion-card {
+  margin-top: 22px;
+  padding: 18px 20px;
+  border-left: 4px solid var(--green-mid);
+}
+
+.hero-conversion-card strong {
+  display: block;
+  font-size: 16px;
+  color: var(--blue-dark);
+  margin-bottom: 8px;
+}
+
+.hero-conversion-card p {
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
 .hero-highlights {
   list-style: none;
   display: grid;
@@ -460,6 +478,45 @@ input, textarea, select, button { font-family: inherit; font-size: inherit; }
   gap: 18px;
 }
 
+.steps-section {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 10px 0 62px;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.step-card {
+  padding: 24px;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, var(--blue-light), var(--green-pale));
+  color: var(--blue-dark);
+  font-weight: 800;
+}
+
+.step-card h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+  color: var(--blue-dark);
+}
+
+.step-card p {
+  color: var(--text-secondary);
+}
+
 .service-card,
 .resource-card {
   padding: 24px;
@@ -619,6 +676,7 @@ input, textarea, select, button { font-family: inherit; font-size: inherit; }
   .contact-grid,
   .services-grid,
   .resources-grid,
+  .steps-grid,
   .site-footer {
     grid-template-columns: 1fr 1fr;
   }
@@ -659,6 +717,7 @@ input, textarea, select, button { font-family: inherit; font-size: inherit; }
   .contact-grid,
   .services-grid,
   .resources-grid,
+  .steps-grid,
   .site-footer,
   .stats-strip {
     grid-template-columns: 1fr;

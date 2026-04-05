@@ -60,6 +60,21 @@ const testimonials = [
 
 const clientLogos = ['NorthGrid', 'TerraWorks', 'BlueRoot', 'Alpine Eco', 'NovaCircular']
 
+const steps = [
+  {
+    title: 'Create your account',
+    description: 'Sign up with your company details so we can tailor the workspace to your needs.',
+  },
+  {
+    title: 'Review your priorities',
+    description: 'Tell us where you need support: claims, waste exchange, or wider compliance guidance.',
+  },
+  {
+    title: 'Move forward with confidence',
+    description: 'Start using Circlos with evidence-driven workflows and expert support.',
+  },
+]
+
 export default function HomePage() {
   useEffect(() => {
     document.title = 'Circlos | Green Compliance & Waste Exchange'
@@ -91,7 +106,7 @@ export default function HomePage() {
           <a className="btn btn-secondary btn-small" href="#contact">
             Contact Us
           </a>
-          <Link className="btn btn-primary btn-small" to="/login">
+          <Link className="btn btn-primary btn-small" to="/login?mode=signup">
             Get Started
           </Link>
         </div>
@@ -108,12 +123,23 @@ export default function HomePage() {
             </p>
 
             <div className="hero-actions">
-              <a className="btn btn-primary" href="#services">
+              <Link className="btn btn-primary" to="/login?mode=signup">
+                Get Started
+              </Link>
+              <a className="btn btn-secondary" href="#services">
                 Learn More
               </a>
-              <a className="btn btn-secondary" href="#contact">
-                Get a Quote
-              </a>
+            </div>
+
+            <div className="hero-conversion-card card-surface">
+              <strong>Start in minutes</strong>
+              <p>
+                Create your account, add your company details, and begin reviewing sustainability claims or
+                matching material streams.
+              </p>
+              <Link className="btn btn-primary btn-small" to="/login?mode=signup">
+                Create Account
+              </Link>
             </div>
 
             <ul className="hero-highlights" aria-label="Key benefits">
@@ -206,6 +232,23 @@ export default function HomePage() {
                 <a className="text-link" href="#contact">
                   Learn More
                 </a>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="steps-section" aria-label="Getting started">
+          <div className="section-heading">
+            <p className="section-kicker">How It Works</p>
+            <h2>A simple path from sign-up to action.</h2>
+          </div>
+
+          <div className="steps-grid">
+            {steps.map((step, index) => (
+              <article key={step.title} className="card-surface step-card">
+                <span className="step-number">0{index + 1}</span>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
               </article>
             ))}
           </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase, supabaseConfigError } from '../supabase'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { createCompany } from '../api'
 
 export default function Login() {
@@ -8,7 +8,8 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [mode, setMode] = useState('login')
+  const [searchParams] = useSearchParams()
+  const [mode, setMode] = useState(searchParams.get('mode') === 'signup' ? 'signup' : 'login')
   const [message, setMessage] = useState('')
   const [companyForm, setCompanyForm] = useState({
     name: '',
