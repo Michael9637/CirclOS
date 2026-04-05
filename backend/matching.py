@@ -45,6 +45,17 @@ def parse_embedding(emb):
     return None
 
 
+def _is_missing_listing_type_column_error(error_message: str) -> bool:
+    normalized = " ".join((error_message or "").lower().split())
+    mentions_column = "listing_type" in normalized or "listing type" in normalized
+    missing_column = (
+        "does not exist" in normalized
+        or "code': '42703" in normalized
+        or 'code": "42703' in normalized
+    )
+    return mentions_column and missing_column
+
+
 def _listing_to_text(listing):
     parts = [
         str(listing.get("material_type") or ""),
@@ -136,8 +147,11 @@ def find_matches(listing_id: str, top_k: int = 5) -> List[Dict[str, Any]]:
         if getattr(cand_resp, "error", None):
             raise RuntimeError(str(cand_resp.error))
         candidates = getattr(cand_resp, "data", []) or []
-    except Exception:
+    except Exception as exc:
         # If listing_type is missing in legacy schemas, fall back to all actives.
+        if not _is_missing_listing_type_column_error(str(exc)):
+            raise
+
         fallback_by_status = (
             supabase.table("waste_listings")
             .select("*")
@@ -148,19 +162,6 @@ def find_matches(listing_id: str, top_k: int = 5) -> List[Dict[str, Any]]:
         if getattr(fallback_by_status, "error", None):
             raise RuntimeError(str(fallback_by_status.error))
         candidates = getattr(fallback_by_status, "data", []) or []
-
-    # If no opposite listing_type exists (legacy schema), match against all actives except source.
-    if not candidates:
-        fallback_resp = (
-            supabase.table("waste_listings")
-            .select("*")
-            .eq("status", "active")
-            .neq("id", listing_id)
-            .execute()
-        )
-        if getattr(fallback_resp, "error", None):
-            raise RuntimeError(str(fallback_resp.error))
-        candidates = getattr(fallback_resp, "data", []) or []
 
     scored = []
     for row in candidates:
