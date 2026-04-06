@@ -18,14 +18,31 @@
 
 .outerAura {
   fill: url(#flywheel-core-gradient);
-  opacity: 0.7;
+}
+
+.gridRingStrong {
+  fill: none;
+  stroke: rgba(31, 122, 99, 0.2);
+  stroke-width: 1.2;
+}
+
+.gridRingSoft {
+  fill: none;
+  stroke: rgba(31, 122, 99, 0.11);
+  stroke-width: 1;
+  stroke-dasharray: 3 10;
 }
 
 .flowTrack {
   fill: none;
   stroke: rgba(31, 122, 99, 0.34);
-  stroke-width: 1.8;
+  stroke-width: 2.2;
   stroke-linecap: round;
+}
+
+.centerSpoke {
+  stroke: rgba(31, 122, 99, 0.09);
+  stroke-width: 1;
 }
 
 .nodeGroup {
@@ -33,68 +50,110 @@
 }
 
 .nodeGlow {
-  fill: rgba(76, 175, 80, 0.18);
+  fill: rgba(76, 175, 80, 0.19);
 }
 
 .nodeCircle {
-  fill: #ffffff;
-  stroke: rgba(31, 122, 99, 0.42);
-  stroke-width: 1.8;
+  fill: rgba(255, 255, 255, 0.98);
+  stroke: rgba(31, 122, 99, 0.45);
+  stroke-width: 1.7;
 }
 
-.nodeCore {
-  fill: #1f7a63;
+.nodeIcon {
+  fill: none;
+  stroke: #1f7a63;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.nodeLabel {
-  fill: #285148;
-  font-size: 10.6px;
-  font-weight: 650;
-  letter-spacing: 0.01em;
+.microStroke {
+  fill: none;
+  stroke: rgba(31, 122, 99, 0.66);
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .labelConnector {
-  stroke: rgba(31, 122, 99, 0.25);
-  stroke-width: 1.15;
+  stroke: rgba(31, 122, 99, 0.28);
+  stroke-width: 1.2;
   stroke-linecap: round;
 }
 
-.flowPulse {
-  fill: rgba(76, 175, 80, 0.28);
+.labelPill {
+  fill: rgba(255, 255, 255, 0.93);
+  stroke: rgba(31, 122, 99, 0.2);
+  stroke-width: 1;
 }
 
-.flowDot {
-  fill: #4caf50;
+.nodeLabel {
+  fill: #275147;
+  font-size: 10.6px;
+  font-weight: 640;
+  letter-spacing: 0.01em;
+}
+
+.flowTrailFar {
+  fill: rgba(76, 175, 80, 0.16);
+}
+
+.flowTrailNear {
+  fill: rgba(76, 175, 80, 0.26);
+}
+
+.flowToken {
+  pointer-events: none;
+}
+
+.flowTokenHalo {
+  fill: rgba(76, 175, 80, 0.24);
+}
+
+.flowTokenCore {
+  fill: #1f7a63;
+}
+
+.flowTokenIcon {
+  pointer-events: none;
+}
+
+.tokenIconStroke {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .centerHalo {
-  fill: rgba(76, 175, 80, 0.14);
+  fill: rgba(76, 175, 80, 0.15);
 }
 
 .centerOuter {
-  fill: rgba(255, 255, 255, 0.95);
-  stroke: rgba(31, 122, 99, 0.32);
+  fill: rgba(255, 255, 255, 0.96);
+  stroke: rgba(31, 122, 99, 0.34);
   stroke-width: 1.6;
 }
 
 .centerInner {
   fill: url(#flywheel-center-gradient);
-  stroke: rgba(31, 122, 99, 0.22);
+  stroke: rgba(31, 122, 99, 0.21);
   stroke-width: 1;
 }
 
 .centerTitle {
-  fill: #1f4f42;
+  fill: #1f4f43;
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.01em;
 }
 
 .centerSubtitle {
-  fill: #3a655a;
-  font-size: 13px;
+  fill: #3d675b;
+  font-size: 12.7px;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -102,13 +161,13 @@
   position: absolute;
   z-index: 3;
   min-width: 172px;
-  max-width: 210px;
+  max-width: 230px;
   padding: 10px 12px;
-  border: 1px solid rgba(31, 122, 99, 0.24);
+  border: 1px solid rgba(31, 122, 99, 0.26);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 14px 24px rgba(22, 64, 52, 0.12);
-  transform: translate(-50%, calc(-100% - 22px));
+  transform: translate(-50%, calc(-100% - 24px));
   pointer-events: none;
 }
 
@@ -128,9 +187,9 @@
 
 .mobileFlow {
   display: none;
-  list-style: none;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 .mobileStep {
@@ -138,9 +197,9 @@
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  border: 1px solid rgba(31, 122, 99, 0.18);
+  border: 1px solid rgba(31, 122, 99, 0.2);
   border-radius: 12px;
-  padding: 12px 12px;
+  padding: 12px;
 }
 
 .mobileStep + .mobileStep {
@@ -154,7 +213,7 @@
   top: -10px;
   width: 1px;
   height: 10px;
-  background: rgba(31, 122, 99, 0.26);
+  background: rgba(31, 122, 99, 0.25);
 }
 
 .mobileDot {
@@ -163,7 +222,7 @@
   height: 10px;
   border-radius: 50%;
   background: #1f7a63;
-  box-shadow: 0 0 0 4px rgba(31, 122, 99, 0.1);
+  box-shadow: 0 0 0 4px rgba(31, 122, 99, 0.12);
 }
 
 .mobileLabel {
@@ -180,9 +239,9 @@
   line-height: 1.45;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .desktopCanvas {
-    max-width: 540px;
+    max-width: 552px;
   }
 
   .centerTitle {
@@ -190,7 +249,11 @@
   }
 
   .centerSubtitle {
-    font-size: 12px;
+    font-size: 11.6px;
+  }
+
+  .nodeLabel {
+    font-size: 10.2px;
   }
 }
 
