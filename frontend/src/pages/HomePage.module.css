@@ -255,122 +255,130 @@
   display: block;
 }
 
-.cycleBoard {
-  fill: rgba(255, 255, 255, 0.72);
-  stroke: #d6e5dd;
+.flywheelBoard {
+  fill: rgba(255, 255, 255, 0.8);
+  stroke: #d6e7df;
   stroke-width: 2;
 }
 
-.flowPathWaste,
-.flowPathMoney,
-.flowPathData,
-.flowPathProof {
+.exchangeArc,
+.paymentArc,
+.dataBridge {
   fill: none;
   stroke-linecap: round;
 }
 
-.flowPathWaste {
+.exchangeArc {
   stroke: #1f7a63;
   stroke-width: 4;
 }
 
-.flowPathMoney {
+.paymentArc {
   stroke: #3f9250;
   stroke-width: 4;
 }
 
-.flowPathData {
-  stroke: #4b7b6f;
+.dataBridge {
+  stroke: #6e8d82;
   stroke-width: 3;
-  stroke-dasharray: 6 7;
+  stroke-dasharray: 7 8;
 }
 
-.flowPathProof {
-  stroke: #8aaea1;
-  stroke-width: 3;
-}
-
-.nodeSeller,
-.nodeBuyer,
-.nodeHub {
+.companyNode,
+.centerNode {
   stroke-width: 2;
 }
 
-.nodeSeller,
-.nodeBuyer {
+.companyNode {
   fill: #ffffff;
   stroke: rgba(31, 122, 99, 0.34);
 }
 
-.nodeHub {
-  fill: #eef7f2;
-  stroke: rgba(31, 122, 99, 0.45);
+.companyNodeSeller {
+  filter: drop-shadow(0 8px 14px rgba(19, 59, 47, 0.1));
 }
 
-.nodeTitle {
+.companyNodeBuyer {
+  filter: drop-shadow(0 8px 14px rgba(19, 59, 47, 0.1));
+}
+
+.centerNode {
+  fill: #eef7f2;
+  stroke: rgba(31, 122, 99, 0.48);
+}
+
+.companyNodeTitle,
+.centerNodeTitle {
   fill: #1a4f42;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
 
-.nodeText {
-  fill: #36544c;
-  font-size: 12px;
+.companyNodeLine,
+.centerNodeLine {
+  fill: #35554b;
+  font-size: 11px;
   font-weight: 600;
 }
 
-.pathLabel {
+.flowLabel {
   fill: #2f5548;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
-.cycleCaption {
+.flowCaption {
   fill: #3d6257;
   font-size: 11px;
   font-weight: 600;
 }
 
-.profitBadgeSeller rect,
-.profitBadgeBuyer rect {
-  fill: rgba(31, 122, 99, 0.14);
-  stroke: rgba(31, 122, 99, 0.3);
+.benefitBadge rect {
+  fill: rgba(31, 122, 99, 0.13);
+  stroke: rgba(31, 122, 99, 0.28);
   stroke-width: 1;
 }
 
-.profitBadgeSeller text,
-.profitBadgeBuyer text {
+.benefitBadgeSeller {
+  transform-origin: 117px 74px;
+}
+
+.benefitBadgeBuyer {
+  transform-origin: 443px 74px;
+}
+
+.benefitBadge text {
   fill: #1b5545;
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.02em;
 }
 
-.tokenWaste circle,
-.tokenMoney circle,
-.tokenData circle {
-  filter: drop-shadow(0 6px 10px rgba(20, 52, 43, 0.25));
+.flowTokenWaste circle,
+.flowTokenMoney circle,
+.flowTokenData circle {
+  filter: drop-shadow(0 5px 8px rgba(20, 52, 43, 0.22));
 }
 
-.tokenWaste circle {
+.flowTokenWaste circle {
   fill: #1f7a63;
 }
 
-.tokenMoney circle {
+.flowTokenMoney circle {
   fill: #3f9250;
 }
 
-.tokenData circle {
+.flowTokenData circle {
   fill: #2d6f5c;
 }
 
-.tokenWaste text,
-.tokenMoney text,
-.tokenData text {
+.flowTokenWaste text,
+.flowTokenMoney text,
+.flowTokenData text {
   fill: #ffffff;
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.03em;
   dominant-baseline: middle;

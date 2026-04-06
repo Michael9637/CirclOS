@@ -245,111 +245,116 @@ function SectionHeader({ kicker, title, description, center = false }) {
 
 function FlywheelExchangeVisual() {
   return (
-    <svg viewBox="0 0 580 390" className={styles.heroSvg}>
-      <rect x="18" y="20" width="544" height="350" rx="24" className={styles.cycleBoard} />
+    <svg viewBox="0 0 560 340" className={styles.heroSvg}>
+      <defs>
+        <linearGradient id="exchangeGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#1F7A63" />
+          <stop offset="100%" stopColor="#4CAF50" />
+        </linearGradient>
+      </defs>
 
-      <path d="M190 125 C 250 62 330 62 390 125" className={styles.flowPathWaste} />
-      <path d="M390 165 C 330 230 250 230 190 165" className={styles.flowPathMoney} />
-      <path d="M290 196 C 290 224 290 242 290 270" className={styles.flowPathData} />
-      <path d="M250 286 C 214 266 190 236 178 186" className={styles.flowPathProof} />
-      <path d="M330 286 C 366 266 390 236 402 186" className={styles.flowPathProof} />
+      <rect x="16" y="16" width="528" height="308" rx="24" className={styles.flywheelBoard} />
 
-      <rect x="42" y="86" width="148" height="98" rx="14" className={styles.nodeSeller} />
-      <text x="116" y="114" textAnchor="middle" className={styles.nodeTitle}>
+      <path d="M186 124 C 246 62 314 62 374 124" className={styles.exchangeArc} />
+      <path d="M374 154 C 314 214 246 214 186 154" className={styles.paymentArc} />
+      <path d="M280 182 L280 220" className={styles.dataBridge} />
+
+      <rect x="42" y="92" width="150" height="88" rx="14" className={`${styles.companyNode} ${styles.companyNodeSeller}`} />
+      <text x="117" y="118" textAnchor="middle" className={styles.companyNodeTitle}>
         Company A
       </text>
-      <text x="116" y="136" textAnchor="middle" className={styles.nodeText}>
-        Sells Waste
+      <text x="117" y="139" textAnchor="middle" className={styles.companyNodeLine}>
+        Sells byproduct
       </text>
-      <text x="116" y="156" textAnchor="middle" className={styles.nodeText}>
-        Earns Revenue
+      <text x="117" y="159" textAnchor="middle" className={styles.companyNodeLine}>
+        Converts waste to revenue
       </text>
 
-      <rect x="390" y="86" width="148" height="98" rx="14" className={styles.nodeBuyer} />
-      <text x="464" y="114" textAnchor="middle" className={styles.nodeTitle}>
+      <rect x="368" y="92" width="150" height="88" rx="14" className={`${styles.companyNode} ${styles.companyNodeBuyer}`} />
+      <text x="443" y="118" textAnchor="middle" className={styles.companyNodeTitle}>
         Company B
       </text>
-      <text x="464" y="136" textAnchor="middle" className={styles.nodeText}>
-        Buys Feedstock
+      <text x="443" y="139" textAnchor="middle" className={styles.companyNodeLine}>
+        Buys feedstock
       </text>
-      <text x="464" y="156" textAnchor="middle" className={styles.nodeText}>
-        Lowers Input Cost
+      <text x="443" y="159" textAnchor="middle" className={styles.companyNodeLine}>
+        Lowers material cost
       </text>
 
-      <rect x="214" y="266" width="152" height="84" rx="14" className={styles.nodeHub} />
-      <text x="290" y="293" textAnchor="middle" className={styles.nodeTitle}>
-        Evidence Record
+      <rect x="214" y="220" width="132" height="78" rx="14" className={styles.centerNode} />
+      <text x="280" y="246" textAnchor="middle" className={styles.centerNodeTitle}>
+        CirclOS Record
       </text>
-      <text x="290" y="314" textAnchor="middle" className={styles.nodeText}>
-        Compliance Ready
+      <text x="280" y="266" textAnchor="middle" className={styles.centerNodeLine}>
+        Transaction proof
       </text>
-      <text x="290" y="334" textAnchor="middle" className={styles.nodeText}>
-        Improves Next Match
+      <text x="280" y="284" textAnchor="middle" className={styles.centerNodeLine}>
+        Compliance ready
       </text>
 
       <motion.g
-        className={styles.profitBadgeSeller}
-        animate={{ y: [0, -2, 0] }}
-        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+        className={`${styles.benefitBadge} ${styles.benefitBadgeSeller}`}
+        animate={{ scale: [1, 1.03, 1] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <rect x="52" y="58" width="128" height="20" rx="10" />
-        <text x="116" y="72" textAnchor="middle">
-          + Revenue from waste
+        <rect x="38" y="64" width="158" height="20" rx="10" />
+        <text x="117" y="78" textAnchor="middle">
+          + Seller revenue
         </text>
       </motion.g>
 
       <motion.g
-        className={styles.profitBadgeBuyer}
-        animate={{ y: [0, -2, 0] }}
-        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
+        className={`${styles.benefitBadge} ${styles.benefitBadgeBuyer}`}
+        animate={{ scale: [1, 1.03, 1] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
       >
-        <rect x="400" y="58" width="128" height="20" rx="10" />
-        <text x="464" y="72" textAnchor="middle">
-          + Lower material cost
+        <rect x="364" y="64" width="158" height="20" rx="10" />
+        <text x="443" y="78" textAnchor="middle">
+          + Buyer savings
         </text>
       </motion.g>
 
       <motion.g
-        className={styles.tokenWaste}
-        animate={{ x: [0, 44, 108, 166, 200, 0], y: [0, -36, -42, -36, 0, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+        className={styles.flowTokenWaste}
+        animate={{ x: [0, 48, 98, 148, 188, 0], y: [0, -24, -32, -24, 0, 0] }}
+        transition={{ duration: 5.4, repeat: Infinity, ease: 'linear' }}
       >
-        <circle cx="190" cy="125" r="12" />
-        <text x="190" y="126" textAnchor="middle">
+        <circle cx="186" cy="124" r="11" />
+        <text x="186" y="124" textAnchor="middle">
           W
         </text>
       </motion.g>
 
       <motion.g
-        className={styles.tokenMoney}
-        animate={{ x: [0, -44, -108, -166, -200, 0], y: [0, 36, 44, 36, 0, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'linear', delay: 1.1 }}
+        className={styles.flowTokenMoney}
+        animate={{ x: [0, -48, -98, -148, -188, 0], y: [0, 24, 32, 24, 0, 0] }}
+        transition={{ duration: 5.4, repeat: Infinity, ease: 'linear', delay: 1.2 }}
       >
-        <circle cx="390" cy="165" r="12" />
-        <text x="390" y="166" textAnchor="middle">
-          EUR
+        <circle cx="374" cy="154" r="11" />
+        <text x="374" y="154" textAnchor="middle">
+          $
         </text>
       </motion.g>
 
       <motion.g
-        className={styles.tokenData}
-        animate={{ x: [0, 0, -24, 0, 24, 0], y: [0, 32, 78, 98, 78, 0] }}
-        transition={{ duration: 5.8, repeat: Infinity, ease: 'easeInOut' }}
+        className={styles.flowTokenData}
+        animate={{ x: [0, 4, 0, -4, 0], y: [0, 16, 34, 52, 0] }}
+        transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <circle cx="290" cy="196" r="10" />
-        <text x="290" y="197" textAnchor="middle">
+        <circle cx="280" cy="182" r="9" />
+        <text x="280" y="182" textAnchor="middle">
           D
         </text>
       </motion.g>
 
-      <text x="290" y="80" textAnchor="middle" className={styles.pathLabel}>
-        Waste Transfer
+      <text x="280" y="76" textAnchor="middle" className={styles.flowLabel}>
+        Waste sold to buyer
       </text>
-      <text x="290" y="246" textAnchor="middle" className={styles.pathLabel}>
-        Payment Return
+      <text x="280" y="240" textAnchor="middle" className={styles.flowLabel}>
+        Payment returns to seller
       </text>
-      <text x="290" y="360" textAnchor="middle" className={styles.cycleCaption}>
-        Closed loop: waste becomes value, value becomes evidence, and evidence improves future exchange.
+      <text x="280" y="312" textAnchor="middle" className={styles.flowCaption}>
+        One simple loop: exchange materials, both profit, and keep proof for compliance.
       </text>
     </svg>
   )
