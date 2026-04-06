@@ -243,6 +243,118 @@ function SectionHeader({ kicker, title, description, center = false }) {
   )
 }
 
+function FlywheelExchangeVisual() {
+  return (
+    <svg viewBox="0 0 580 390" className={styles.heroSvg}>
+      <rect x="18" y="20" width="544" height="350" rx="24" className={styles.cycleBoard} />
+
+      <path d="M190 125 C 250 62 330 62 390 125" className={styles.flowPathWaste} />
+      <path d="M390 165 C 330 230 250 230 190 165" className={styles.flowPathMoney} />
+      <path d="M290 196 C 290 224 290 242 290 270" className={styles.flowPathData} />
+      <path d="M250 286 C 214 266 190 236 178 186" className={styles.flowPathProof} />
+      <path d="M330 286 C 366 266 390 236 402 186" className={styles.flowPathProof} />
+
+      <rect x="42" y="86" width="148" height="98" rx="14" className={styles.nodeSeller} />
+      <text x="116" y="114" textAnchor="middle" className={styles.nodeTitle}>
+        Company A
+      </text>
+      <text x="116" y="136" textAnchor="middle" className={styles.nodeText}>
+        Sells Waste
+      </text>
+      <text x="116" y="156" textAnchor="middle" className={styles.nodeText}>
+        Earns Revenue
+      </text>
+
+      <rect x="390" y="86" width="148" height="98" rx="14" className={styles.nodeBuyer} />
+      <text x="464" y="114" textAnchor="middle" className={styles.nodeTitle}>
+        Company B
+      </text>
+      <text x="464" y="136" textAnchor="middle" className={styles.nodeText}>
+        Buys Feedstock
+      </text>
+      <text x="464" y="156" textAnchor="middle" className={styles.nodeText}>
+        Lowers Input Cost
+      </text>
+
+      <rect x="214" y="266" width="152" height="84" rx="14" className={styles.nodeHub} />
+      <text x="290" y="293" textAnchor="middle" className={styles.nodeTitle}>
+        Evidence Record
+      </text>
+      <text x="290" y="314" textAnchor="middle" className={styles.nodeText}>
+        Compliance Ready
+      </text>
+      <text x="290" y="334" textAnchor="middle" className={styles.nodeText}>
+        Improves Next Match
+      </text>
+
+      <motion.g
+        className={styles.profitBadgeSeller}
+        animate={{ y: [0, -2, 0] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <rect x="52" y="58" width="128" height="20" rx="10" />
+        <text x="116" y="72" textAnchor="middle">
+          + Revenue from waste
+        </text>
+      </motion.g>
+
+      <motion.g
+        className={styles.profitBadgeBuyer}
+        animate={{ y: [0, -2, 0] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
+      >
+        <rect x="400" y="58" width="128" height="20" rx="10" />
+        <text x="464" y="72" textAnchor="middle">
+          + Lower material cost
+        </text>
+      </motion.g>
+
+      <motion.g
+        className={styles.tokenWaste}
+        animate={{ x: [0, 44, 108, 166, 200, 0], y: [0, -36, -42, -36, 0, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+      >
+        <circle cx="190" cy="125" r="12" />
+        <text x="190" y="126" textAnchor="middle">
+          W
+        </text>
+      </motion.g>
+
+      <motion.g
+        className={styles.tokenMoney}
+        animate={{ x: [0, -44, -108, -166, -200, 0], y: [0, 36, 44, 36, 0, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'linear', delay: 1.1 }}
+      >
+        <circle cx="390" cy="165" r="12" />
+        <text x="390" y="166" textAnchor="middle">
+          EUR
+        </text>
+      </motion.g>
+
+      <motion.g
+        className={styles.tokenData}
+        animate={{ x: [0, 0, -24, 0, 24, 0], y: [0, 32, 78, 98, 78, 0] }}
+        transition={{ duration: 5.8, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <circle cx="290" cy="196" r="10" />
+        <text x="290" y="197" textAnchor="middle">
+          D
+        </text>
+      </motion.g>
+
+      <text x="290" y="80" textAnchor="middle" className={styles.pathLabel}>
+        Waste Transfer
+      </text>
+      <text x="290" y="246" textAnchor="middle" className={styles.pathLabel}>
+        Payment Return
+      </text>
+      <text x="290" y="360" textAnchor="middle" className={styles.cycleCaption}>
+        Closed loop: waste becomes value, value becomes evidence, and evidence improves future exchange.
+      </text>
+    </svg>
+  )
+}
+
 export default function HomePage() {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -387,41 +499,7 @@ export default function HomePage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: 'easeOut', delay: 0.12 }}
           >
-            <svg viewBox="0 0 520 380" className={styles.heroSvg}>
-              <defs>
-                <linearGradient id="heroGradient" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#1F7A63" />
-                  <stop offset="100%" stopColor="#4CAF50" />
-                </linearGradient>
-              </defs>
-
-              <circle cx="260" cy="190" r="112" className={styles.heroRingBack} />
-
-              <motion.circle
-                cx="260"
-                cy="190"
-                r="112"
-                className={styles.heroRingFront}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
-                style={{ transformOrigin: '260px 190px' }}
-              />
-
-              <path d="M150 118l42-28M330 290l40-28M376 150l36 14M110 230l38 10" className={styles.heroLinks} />
-
-              <circle cx="145" cy="116" r="26" fill="url(#heroGradient)" />
-              <circle cx="390" cy="166" r="26" fill="url(#heroGradient)" />
-              <circle cx="350" cy="294" r="26" fill="url(#heroGradient)" />
-              <circle cx="116" cy="236" r="26" fill="url(#heroGradient)" />
-              <circle cx="260" cy="190" r="42" fill="#F4F1EC" stroke="#1F7A63" strokeWidth="3" />
-
-              <text x="260" y="186" textAnchor="middle" className={styles.heroTextTop}>
-                DATA
-              </text>
-              <text x="260" y="206" textAnchor="middle" className={styles.heroTextBottom}>
-                FLYWHEEL
-              </text>
-            </svg>
+            <FlywheelExchangeVisual />
           </motion.div>
         </section>
 
@@ -511,12 +589,17 @@ export default function HomePage() {
             </ol>
 
             <aside className={styles.flywheelPanel} aria-label="Data flywheel explanation">
-              <h3>Data Flywheel Effect</h3>
+              <h3>Data Flywheel + Shared Profit</h3>
               <p>
-                Each completed transaction improves matching relevance and strengthens claim evidence. Better evidence then
-                drives faster approvals and higher trust in future deals.
+                Waste sellers create new revenue while buyers lower input costs. Each confirmed exchange writes
+                evidence records that make sustainability claims safer and faster.
               </p>
-              <p className={styles.flywheelLine}>Waste -&gt; Match -&gt; Transaction -&gt; Evidence -&gt; Compliance -&gt; Better Match</p>
+              <ul className={styles.flywheelBenefitList}>
+                <li>Seller converts disposal spend into sales income.</li>
+                <li>Buyer secures lower cost industrial feedstock.</li>
+                <li>Both sides get auditable compliance proof.</li>
+              </ul>
+              <p className={styles.flywheelLine}>Waste -&gt; Sale -&gt; Shared profit -&gt; Evidence -&gt; Better next match</p>
             </aside>
           </div>
         </motion.section>
