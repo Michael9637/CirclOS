@@ -181,7 +181,7 @@
 .hero {
   display: grid;
   grid-template-columns: 1.02fr 0.98fr;
-  gap: 28px;
+  gap: 34px;
   align-items: center;
   margin-bottom: 26px;
 }
@@ -242,11 +242,27 @@
 
 .heroVisual {
   position: relative;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  padding: 18px;
-  background: linear-gradient(170deg, #f8f6f2, #f0eee8);
-  box-shadow: var(--shadow);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.heroVisual::before {
+  content: '';
+  position: absolute;
+  inset: 10% 9%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(31, 122, 99, 0.12), rgba(31, 122, 99, 0) 58%),
+    radial-gradient(circle at 52% 58%, rgba(76, 175, 80, 0.08), rgba(76, 175, 80, 0) 62%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.heroVisual > * {
+  position: relative;
+  z-index: 1;
 }
 
 .trustBar {
@@ -368,8 +384,8 @@
 
 .flowLayout {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 22px;
 }
 
 .flowList {
@@ -377,8 +393,8 @@
   padding: 0;
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .flowItem {
@@ -386,44 +402,41 @@
   border-radius: 12px;
   border: 1px solid var(--border);
   background: #fff;
-  padding: 14px;
+  padding: 16px;
+  min-height: 126px;
+  box-shadow: 0 8px 14px rgba(20, 57, 46, 0.06);
 }
 
-.flowItem:not(:last-child)::after {
-  content: '->';
-  position: absolute;
-  top: 50%;
-  right: -13px;
-  transform: translateY(-50%);
-  color: #3f6a5f;
-  font-size: 0.74rem;
-  font-weight: 700;
+.flowItem:nth-child(5) {
+  grid-column: 1 / -1;
+  min-height: 112px;
 }
 
 .flowNumber {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  margin-bottom: 10px;
+  margin-bottom: 11px;
   color: #fff;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
   background: linear-gradient(130deg, var(--primary), var(--secondary));
 }
 
 .flowContent h3 {
   margin: 0;
-  font-size: 0.93rem;
+  font-size: 0.96rem;
+  line-height: 1.35;
 }
 
 .flowContent p {
   margin: 6px 0 0;
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   color: #455d57;
-  line-height: 1.45;
+  line-height: 1.52;
 }
 
 .flywheelPanel {
@@ -768,11 +781,7 @@
   }
 
   .flowList {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .flowItem:nth-child(3)::after {
-    display: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .solutionGrid {
@@ -789,10 +798,6 @@
     padding-top: 24px;
   }
 
-  .heroVisual {
-    padding: 12px;
-  }
-
   .metricGrid,
   .pillarGrid,
   .testimonialGrid,
@@ -804,8 +809,13 @@
     grid-template-columns: 1fr;
   }
 
-  .flowItem::after {
-    display: none;
+  .flowItem,
+  .flowItem:nth-child(5) {
+    min-height: 0;
+  }
+
+  .flowItem:nth-child(5) {
+    grid-column: auto;
   }
 
   .footerGrid {

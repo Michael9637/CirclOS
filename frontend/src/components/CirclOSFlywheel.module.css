@@ -5,7 +5,7 @@
 .desktopCanvas {
   position: relative;
   width: 100%;
-  max-width: 560px;
+  max-width: 584px;
   margin: 0 auto;
 }
 
@@ -48,9 +48,15 @@
 
 .nodeLabel {
   fill: #285148;
-  font-size: 11px;
+  font-size: 10.6px;
   font-weight: 650;
   letter-spacing: 0.01em;
+}
+
+.labelConnector {
+  stroke: rgba(31, 122, 99, 0.25);
+  stroke-width: 1.15;
+  stroke-linecap: round;
 }
 
 .flowPulse {
@@ -176,7 +182,7 @@
 
 @media (max-width: 900px) {
   .desktopCanvas {
-    max-width: 520px;
+    max-width: 540px;
   }
 
   .centerTitle {

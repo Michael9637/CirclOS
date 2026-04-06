@@ -56,27 +56,27 @@ const flywheelSteps = [
   {
     id: 'step-1',
     title: 'List waste streams',
-    detail: 'Upload byproduct specs, quality, and location data.',
+    detail: 'Upload material type, quality, and location.',
   },
   {
     id: 'step-2',
     title: 'AI finds matches',
-    detail: 'Ranking model prioritizes reuse fit, logistics, and demand.',
+    detail: 'Model ranks best-fit buyers by reuse and logistics.',
   },
   {
     id: 'step-3',
     title: 'Complete transaction',
-    detail: 'Move from interest to confirmed transfer in one workflow.',
+    detail: 'Confirm quantity, timing, and transfer terms.',
   },
   {
     id: 'step-4',
     title: 'Evidence record generated',
-    detail: 'Every step is captured for auditability and proof.',
+    detail: 'System stores an auditable evidence trail.',
   },
   {
     id: 'step-5',
     title: 'Compliance automatically created',
-    detail: 'Claims are linked to transaction evidence and regulations.',
+    detail: 'Claims and compliance outputs are generated automatically.',
   },
 ]
 
@@ -383,7 +383,6 @@ export default function HomePage() {
 
           <motion.div
             className={styles.heroVisual}
-            aria-hidden="true"
             initial={{ opacity: 0, x: 28 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: 'easeOut', delay: 0.12 }}

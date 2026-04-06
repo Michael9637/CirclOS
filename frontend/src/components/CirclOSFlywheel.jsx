@@ -47,13 +47,35 @@ export default function CirclOSFlywheel() {
     return steps.map((step, index) => {
       const phase = index / steps.length
       const angle = START_ANGLE + phase * TAU
+
+      const directionX = Math.cos(angle)
+      const directionY = Math.sin(angle)
+
+      let labelAnchor = 'middle'
+      let labelShiftX = 0
+
+      if (directionX > 0.35) {
+        labelAnchor = 'start'
+        labelShiftX = 8
+      } else if (directionX < -0.35) {
+        labelAnchor = 'end'
+        labelShiftX = -8
+      }
+
+      const labelShiftY = directionY > 0.45 ? 8 : directionY < -0.45 ? -8 : 3
+
       return {
         ...step,
         phase,
-        x: CENTER + RADIUS * Math.cos(angle),
-        y: CENTER + RADIUS * Math.sin(angle),
-        labelX: CENTER + (RADIUS + 34) * Math.cos(angle),
-        labelY: CENTER + (RADIUS + 34) * Math.sin(angle),
+        x: CENTER + RADIUS * directionX,
+        y: CENTER + RADIUS * directionY,
+        connectorX: CENTER + (RADIUS + 24) * directionX,
+        connectorY: CENTER + (RADIUS + 24) * directionY,
+        labelX: CENTER + (RADIUS + 62) * directionX,
+        labelY: CENTER + (RADIUS + 62) * directionY,
+        labelAnchor,
+        labelShiftX,
+        labelShiftY,
       }
     })
   }, [])
@@ -179,7 +201,14 @@ export default function CirclOSFlywheel() {
                 />
                 <circle cx={step.x} cy={step.y} r="14" className={styles.nodeCircle} />
                 <circle cx={step.x} cy={step.y} r="4.8" className={styles.nodeCore} />
-                <text x={step.labelX} y={step.labelY} textAnchor="middle" className={styles.nodeLabel}>
+                <line x1={step.x} y1={step.y} x2={step.connectorX} y2={step.connectorY} className={styles.labelConnector} />
+                <text
+                  x={step.labelX + step.labelShiftX}
+                  y={step.labelY + step.labelShiftY}
+                  textAnchor={step.labelAnchor}
+                  dominantBaseline="middle"
+                  className={styles.nodeLabel}
+                >
                   {step.label}
                 </text>
               </motion.g>
