@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from './useAuth'
 
+const demoLoginStorageKey = 'circlos_home_mock_login'
+const demoUserStorageKey = 'circlos_home_mock_user'
+
 export default function Navbar() {
   const { user, supabase } = useAuth()
   const location = useLocation()
@@ -48,6 +51,7 @@ export default function Navbar() {
       </Link>
 
       <div style={{ display: 'flex', alignItems: 'stretch', marginLeft: '32px' }}>
+        <Link to="/" style={linkStyle('/')}>Home</Link>
         <Link to="/app/dashboard" style={linkStyle('/app/dashboard')}>Dashboard</Link>
         <Link to="/app/list" style={linkStyle('/app/list')}>List Waste</Link>
         <Link to="/app/compliance" style={linkStyle('/app/compliance')}>Compliance</Link>
@@ -105,9 +109,18 @@ export default function Navbar() {
                 Profile
               </Link>
               <button
-                onClick={() => {
+                onClick={async () => {
                   setMenuOpen(false)
-                  supabase.auth.signOut()
+
+                  if (supabase?.auth) {
+                    await supabase.auth.signOut()
+                  }
+
+                  if (typeof window !== 'undefined') {
+                    window.localStorage.removeItem(demoLoginStorageKey)
+                    window.localStorage.removeItem(demoUserStorageKey)
+                  }
+
                   navigate('/')
                 }}
                 style={{

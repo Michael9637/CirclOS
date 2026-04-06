@@ -17,6 +17,13 @@
   font-family: 'Segoe UI', 'Trebuchet MS', sans-serif;
 }
 
+.pageSignedIn {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(31, 122, 99, 0.11), transparent 38%),
+    radial-gradient(circle at 100% 0%, rgba(76, 175, 80, 0.1), transparent 34%),
+    var(--background);
+}
+
 .page :global(a),
 .page :global(button),
 .page :global(input) {
@@ -52,6 +59,11 @@
   border-bottom: 1px solid var(--border);
   background: rgba(244, 241, 236, 0.93);
   backdrop-filter: blur(8px);
+}
+
+.pageSignedIn .header {
+  border-bottom-color: rgba(31, 122, 99, 0.26);
+  background: rgba(244, 241, 236, 0.97);
 }
 
 .headerInner {
@@ -112,6 +124,15 @@
 .actions {
   display: flex;
   gap: 10px;
+  align-items: center;
+}
+
+.headerGreeting {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #245145;
+  white-space: nowrap;
 }
 
 .button {
@@ -132,6 +153,12 @@
 
 .button:hover {
   transform: translateY(-1px);
+}
+
+.buttonLarge {
+  padding: 14px 28px;
+  font-size: 1rem;
+  border-radius: 12px;
 }
 
 .buttonPrimary {
@@ -170,6 +197,48 @@
   height: 2px;
   border-radius: 999px;
   background: #23463c;
+}
+
+.sessionStrip {
+  border-bottom: 1px solid rgba(31, 122, 99, 0.22);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.78), rgba(236, 246, 241, 0.9));
+}
+
+.sessionStripInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.sessionStripStatus {
+  margin: 0;
+  color: #23473d;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.sessionStripActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.sessionToolButton {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.sessionHomeButton {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.85rem;
 }
 
 .main {
@@ -212,6 +281,13 @@
   font-size: 1.05rem;
   line-height: 1.65;
   color: #30443f;
+}
+
+.heroStatus {
+  margin: 12px 0 0;
+  color: #2b4e44;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .heroCtas {
@@ -267,6 +343,13 @@
 
 .trustBar {
   margin: 24px 0 34px;
+}
+
+.liveDataHint {
+  margin: 12px 4px 0;
+  color: #36584f;
+  font-size: 0.86rem;
+  font-weight: 600;
 }
 
 .metricGrid {
@@ -772,6 +855,20 @@
     display: flex;
   }
 
+  .headerGreeting {
+    width: 100%;
+    white-space: normal;
+  }
+
+  .sessionStripInner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sessionStripActions {
+    justify-content: flex-start;
+  }
+
   .hero {
     grid-template-columns: 1fr;
   }
@@ -824,5 +921,14 @@
 
   .finalCta {
     padding: 24px 18px;
+  }
+
+  .buttonLarge {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .heroCtas {
+    width: 100%;
   }
 }

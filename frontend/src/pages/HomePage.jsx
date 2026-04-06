@@ -1,13 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import CirclOSFlywheel from '../components/CirclOSFlywheel'
+import { getListings, apiConfigError } from '../api'
+import { useAuth } from '../components/useAuth'
 import styles from './HomePage.module.css'
 
 const navItems = [
   { label: 'Solutions', href: '#solutions' },
   { label: 'How It Works', href: '#how-it-works' },
   { label: 'Resources', href: '#resources' },
+]
+
+const demoLoginStorageKey = 'circlos_home_mock_login'
+const demoUserStorageKey = 'circlos_home_mock_user'
+const defaultDemoUser = 'CirclOS User'
+
+const toolPages = [
+  { id: 'waste', label: 'Waste', path: '/app/list' },
+  { id: 'compliance', label: 'Compliance', path: '/app/compliance' },
+  { id: 'scanner', label: 'Scanner', path: '/app/scanner' },
+  { id: 'evidence', label: 'Evidence', path: '/app/evidence' },
 ]
 
 const trustMetrics = [
@@ -246,7 +259,44 @@ function SectionHeader({ kicker, title, description, center = false }) {
 
 export default function HomePage() {
   const navigate = useNavigate()
+  const { user, supabase } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isDemoLoggedIn, setIsDemoLoggedIn] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false
+    }
+    return window.localStorage.getItem(demoLoginStorageKey) === 'true'
+  })
+  const [demoUserName, setDemoUserName] = useState(() => {
+    if (typeof window === 'undefined') {
+      return defaultDemoUser
+    }
+    return window.localStorage.getItem(demoUserStorageKey) || defaultDemoUser
+  })
+  const [liveListingCount, setLiveListingCount] = useState(null)
+  const [isListingCountLoading, setIsListingCountLoading] = useState(false)
+
+  const accountName = user?.email?.split('@')[0] || demoUserName
+  const isLoggedIn = Boolean(user) || isDemoLoggedIn
+
+  const visibleTrustMetrics = useMemo(() => {
+    if (typeof liveListingCount !== 'number') {
+      return trustMetrics
+    }
+
+    return trustMetrics.map((metric) => {
+      if (metric.id !== 'sme-count') {
+        return metric
+      }
+
+      return {
+        ...metric,
+        value: `${liveListingCount}+`,
+        label: 'Active Listings',
+        description: 'Live supply listings synced from the CirclOS API',
+      }
+    })
+  }, [liveListingCount])
 
   useEffect(() => {
     document.title = 'CirclOS | Industrial Waste Exchange and ECGT Compliance'
@@ -275,15 +325,107 @@ export default function HomePage() {
     return () => window.removeEventListener('keydown', closeMenuOnEscape)
   }, [])
 
+  useEffect(() => {
+    if (!user || typeof window === 'undefined') {
+      return
+    }
+
+    window.localStorage.removeItem(demoLoginStorageKey)
+    window.localStorage.removeItem(demoUserStorageKey)
+    setIsDemoLoggedIn(false)
+    setDemoUserName(defaultDemoUser)
+  }, [user])
+
+  useEffect(() => {
+    let ignore = false
+
+    if (apiConfigError) {
+      return () => {
+        ignore = true
+      }
+    }
+
+    setIsListingCountLoading(true)
+
+    getListings()
+      .then((listings) => {
+        if (ignore || !Array.isArray(listings)) {
+          return
+        }
+
+        setLiveListingCount(listings.length)
+      })
+      .catch(() => {
+        if (!ignore) {
+          setLiveListingCount(null)
+        }
+      })
+      .finally(() => {
+        if (!ignore) {
+          setIsListingCountLoading(false)
+        }
+      })
+
+    return () => {
+      ignore = true
+    }
+  }, [])
+
   const goTo = (path) => {
     setIsMenuOpen(false)
     navigate(path)
   }
 
+  const saveDemoSession = (isActive, name = defaultDemoUser) => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    if (isActive) {
+      window.localStorage.setItem(demoLoginStorageKey, 'true')
+      window.localStorage.setItem(demoUserStorageKey, name)
+      return
+    }
+
+    window.localStorage.removeItem(demoLoginStorageKey)
+    window.localStorage.removeItem(demoUserStorageKey)
+  }
+
+  const mockLogin = () => {
+    setIsMenuOpen(false)
+    setIsDemoLoggedIn(true)
+    setDemoUserName(defaultDemoUser)
+    saveDemoSession(true, defaultDemoUser)
+  }
+
+  const logout = async () => {
+    setIsMenuOpen(false)
+
+    if (user && supabase?.auth) {
+      await supabase.auth.signOut()
+      navigate('/')
+      return
+    }
+
+    setIsDemoLoggedIn(false)
+    setDemoUserName(defaultDemoUser)
+    saveDemoSession(false)
+    navigate('/')
+  }
+
+  const openToolPage = (path) => {
+    if (isLoggedIn) {
+      goTo(path)
+      return
+    }
+
+    goTo('/login')
+  }
+
   const closeMenu = () => setIsMenuOpen(false)
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${isLoggedIn ? styles.pageSignedIn : ''}`}>
       <a className={styles.skipLink} href="#main-content">
         Skip to main content
       </a>
@@ -326,19 +468,63 @@ export default function HomePage() {
           </nav>
 
           <div className={`${styles.actions} ${isMenuOpen ? styles.actionsOpen : ''}`}>
-            <button type="button" className={`${styles.button} ${styles.buttonGhost}`} onClick={() => goTo('/login')}>
-              Login
-            </button>
-            <button
-              type="button"
-              className={`${styles.button} ${styles.buttonPrimary}`}
-              onClick={() => goTo('/registercompany')}
-            >
-              Sign Up
-            </button>
+            {isLoggedIn ? (
+              <>
+                <p className={styles.headerGreeting} aria-live="polite">
+                  Welcome, {accountName}!
+                </p>
+                <button type="button" className={`${styles.button} ${styles.buttonGhost}`} onClick={logout}>
+                  Log Out
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="button" className={`${styles.button} ${styles.buttonGhost}`} onClick={mockLogin}>
+                  Log In
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.button} ${styles.buttonPrimary}`}
+                  onClick={() => goTo('/login?mode=signup')}
+                >
+                  Get Started
+                </button>
+              </>
+            )}
           </div>
         </div>
       </header>
+
+      {isLoggedIn ? (
+        <section className={styles.sessionStrip} aria-label="Logged in navigation shortcuts">
+          <div className={styles.sessionStripInner}>
+            <p className={styles.sessionStripStatus}>
+              {user
+                ? 'Signed in. Move between tools quickly and return to Home any time.'
+                : 'Demo mode active. Sign in to access full tool data and actions.'}
+            </p>
+            <div className={styles.sessionStripActions}>
+              {toolPages.map((toolPage) => (
+                <button
+                  key={toolPage.id}
+                  type="button"
+                  className={`${styles.button} ${styles.buttonGhost} ${styles.sessionToolButton}`}
+                  onClick={() => openToolPage(toolPage.path)}
+                >
+                  {toolPage.label}
+                </button>
+              ))}
+              <button
+                type="button"
+                className={`${styles.button} ${styles.buttonPrimary} ${styles.sessionHomeButton}`}
+                onClick={() => goTo('/')}
+              >
+                Home
+              </button>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <main id="main-content" className={styles.main}>
         <section className={styles.hero} aria-labelledby="hero-title">
@@ -356,20 +542,23 @@ export default function HomePage() {
               Reduce disposal costs, generate new revenue from byproducts, and stay compliant with EU anti-greenwashing
               requirements through evidence-backed workflows.
             </p>
+            <p className={styles.heroStatus} role="status" aria-live="polite">
+              {isLoggedIn ? `Signed in as ${accountName}` : 'Guest mode: Sign in to open operational tools'}
+            </p>
             <div className={styles.heroCtas}>
               <button
                 type="button"
-                className={`${styles.button} ${styles.buttonPrimary}`}
-                onClick={() => goTo('/registercompany')}
+                className={`${styles.button} ${styles.buttonPrimary} ${styles.buttonLarge}`}
+                onClick={() => goTo(isLoggedIn ? '/app/dashboard' : '/login?mode=signup')}
               >
-                Get Started
+                {isLoggedIn ? 'Open Dashboard' : 'Get Started'}
               </button>
               <button
                 type="button"
                 className={`${styles.button} ${styles.buttonGhost}`}
-                onClick={() => goTo('/dashboard')}
+                onClick={() => goTo(isLoggedIn ? '/app/compliance' : '/login')}
               >
-                View Demo
+                {isLoggedIn ? 'Open Compliance' : 'View Demo'}
               </button>
             </div>
             <ul className={styles.heroFlowList} aria-label="Core CirclOS flow">
@@ -400,7 +589,7 @@ export default function HomePage() {
           viewport={{ once: true, amount: 0.2 }}
         >
           <ul className={styles.metricGrid}>
-            {trustMetrics.map((metric) => (
+            {visibleTrustMetrics.map((metric) => (
               <li key={metric.id} className={styles.metricCard}>
                 <p className={styles.metricValue}>{metric.value}</p>
                 <p className={styles.metricLabel}>{metric.label}</p>
@@ -408,6 +597,10 @@ export default function HomePage() {
               </li>
             ))}
           </ul>
+          {isListingCountLoading ? <p className={styles.liveDataHint}>Syncing live listing data...</p> : null}
+          {!isListingCountLoading && typeof liveListingCount === 'number' ? (
+            <p className={styles.liveDataHint}>Live API data connected: {liveListingCount} active listings.</p>
+          ) : null}
         </motion.section>
 
         <motion.section
@@ -604,10 +797,10 @@ export default function HomePage() {
           <div className={styles.finalCtaActions}>
             <button
               type="button"
-              className={`${styles.button} ${styles.buttonPrimary}`}
-              onClick={() => goTo('/registercompany')}
+              className={`${styles.button} ${styles.buttonPrimary} ${styles.buttonLarge}`}
+              onClick={() => goTo(isLoggedIn ? '/app/dashboard' : '/login?mode=signup')}
             >
-              Get Started
+              {isLoggedIn ? 'Go to Dashboard' : 'Get Started'}
             </button>
             <a href="mailto:sales@circlos.com" className={`${styles.button} ${styles.buttonGhost}`}>
               Contact Sales
