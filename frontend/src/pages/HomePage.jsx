@@ -492,17 +492,10 @@ export default function HomePage() {
             <div className={styles.heroCtas}>
               <button
                 type="button"
-                className={`${styles.button} ${styles.buttonPrimary} ${styles.buttonLarge}`}
+                className={`${styles.button} ${styles.buttonPrimary} ${styles.buttonLarge} ${styles.heroCtaFull}`}
                 onClick={() => goTo(isLoggedIn ? '/app/dashboard' : '/login?mode=signup')}
               >
                 {isLoggedIn ? 'Open Dashboard' : 'Get Started'}
-              </button>
-              <button
-                type="button"
-                className={`${styles.button} ${styles.buttonGhost}`}
-                onClick={() => goTo(isLoggedIn ? '/app/compliance' : '/login')}
-              >
-                {isLoggedIn ? 'Open Compliance' : 'View Demo'}
               </button>
             </div>
             <ul className={styles.heroFlowList} aria-label="Core CirclOS flow">
