@@ -1,595 +1,719 @@
-import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
+import styles from './HomePage.module.css'
+
+const navItems = [
+  { label: 'Solutions', href: '#solutions' },
+  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'Resources', href: '#resources' },
+]
+
+const trustMetrics = [
+  {
+    id: 'sme-count',
+    value: '500+',
+    label: 'SMEs',
+    description: 'Manufacturing teams onboarded',
+  },
+  {
+    id: 'waste-value',
+    value: 'EUR 12M+',
+    label: 'Waste Value Unlocked',
+    description: 'Recovered through circular transactions',
+  },
+  {
+    id: 'compliance-ready',
+    value: 'ECGT-Ready',
+    label: 'Compliance Workflows',
+    description: 'Structured for defensible claims',
+  },
+]
+
+const valuePillars = [
+  {
+    id: 'waste-exchange',
+    icon: 'waste',
+    title: 'Waste Exchange',
+    description: 'List and monetize industrial byproducts.',
+  },
+  {
+    id: 'matching-engine',
+    icon: 'matching',
+    title: 'AI Matching Engine',
+    description: 'Find optimal buyers using intelligent ranking.',
+  },
+  {
+    id: 'compliance-dashboard',
+    icon: 'compliance',
+    title: 'Compliance Dashboard',
+    description: 'Generate legally defensible sustainability claims automatically.',
+  },
+]
+
+const flywheelSteps = [
+  {
+    id: 'step-1',
+    title: 'List waste streams',
+    detail: 'Upload byproduct specs, quality, and location data.',
+  },
+  {
+    id: 'step-2',
+    title: 'AI finds matches',
+    detail: 'Ranking model prioritizes reuse fit, logistics, and demand.',
+  },
+  {
+    id: 'step-3',
+    title: 'Complete transaction',
+    detail: 'Move from interest to confirmed transfer in one workflow.',
+  },
+  {
+    id: 'step-4',
+    title: 'Evidence record generated',
+    detail: 'Every step is captured for auditability and proof.',
+  },
+  {
+    id: 'step-5',
+    title: 'Compliance automatically created',
+    detail: 'Claims are linked to transaction evidence and regulations.',
+  },
+]
+
+const solutionSegments = [
+  {
+    id: 'smes',
+    title: 'For SMEs',
+    subtitle: 'Reduce cost pressure while staying compliant.',
+    points: [
+      'Lower disposal spend with faster byproduct resale.',
+      'Track value recovery and compliance in one interface.',
+      'Run with lean teams using guided workflows.',
+    ],
+  },
+  {
+    id: 'enterprise',
+    title: 'For Enterprise / CSRD Teams',
+    subtitle: 'Build trusted supply chain data at scale.',
+    points: [
+      'Connect sites and suppliers under shared standards.',
+      'Surface transaction evidence for reporting and assurance.',
+      'Integrate data pipelines through API-ready architecture.',
+    ],
+  },
+]
+
+const testimonials = [
+  {
+    id: 'testimonial-1',
+    name: 'Amira Novak',
+    role: 'Operations Director',
+    company: 'NordFab Components',
+    quote:
+      'CirclOS cut our disposal spend and created a clear path to revenue from materials we used to treat as waste.',
+  },
+  {
+    id: 'testimonial-2',
+    name: 'Jonas Meyer',
+    role: 'Head of Compliance',
+    company: 'Helion Manufacturing',
+    quote:
+      'The compliance dashboard gives us defensible claims evidence without slowing down commercial teams.',
+  },
+  {
+    id: 'testimonial-3',
+    name: 'Laura Chen',
+    role: 'Sustainability Manager',
+    company: 'Arcus Industrial Group',
+    quote:
+      'The AI matching workflow improved transaction speed and gave leadership better visibility into circularity KPIs.',
+  },
+]
+
+const resources = [
+  {
+    id: 'resource-1',
+    category: 'Guide',
+    title: 'ECGT Compliance Guide',
+    description: 'Map your sustainability claims to verifiable evidence records.',
+  },
+  {
+    id: 'resource-2',
+    category: 'Playbook',
+    title: 'Circular Economy Playbook',
+    description: 'Practical rollout framework for plant-by-plant waste monetization.',
+  },
+  {
+    id: 'resource-3',
+    category: 'Case Studies',
+    title: 'Case Studies',
+    description: 'See how peers reduced cost, accelerated deals, and improved compliance.',
+  },
+]
+
+const footerLinks = [
+  { label: 'Solutions', href: '#solutions' },
+  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'Resources', href: '#resources' },
+  { label: 'Contact', href: '#contact' },
+]
+
+const socialLinks = [
+  { label: 'LinkedIn', href: 'https://www.linkedin.com', icon: 'social-icon' },
+  { label: 'X', href: 'https://www.x.com', icon: 'x-icon' },
+  { label: 'YouTube', href: 'https://www.youtube.com', icon: 'social-icon' },
+]
+
+const sectionReveal = {
+  hidden: { opacity: 0, y: 32 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.55,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+}
+
+const cardStagger = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+}
+
+const cardReveal = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: 'easeOut',
+    },
+  },
+}
+
+function PillarIcon({ name }) {
+  if (name === 'matching') {
+    return (
+      <svg viewBox="0 0 24 24" role="img" aria-label="AI Matching icon">
+        <path d="M5 12h5l2-4 3 8 2-4h2" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="5" cy="12" r="2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+        <circle cx="19" cy="12" r="2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      </svg>
+    )
+  }
+
+  if (name === 'compliance') {
+    return (
+      <svg viewBox="0 0 24 24" role="img" aria-label="Compliance icon">
+        <path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+        <path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" role="img" aria-label="Waste Exchange icon">
+      <path d="M8 7h8l1 11H7L8 7z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      <path d="M10 7V5a2 2 0 114 0v2" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M9 11h6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function FooterSocialIcon({ symbolId }) {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className={styles.socialIconGraphic}>
+      <use href={`/icons.svg#${symbolId}`} />
+    </svg>
+  )
+}
+
+function SectionHeader({ kicker, title, description, center = false }) {
+  return (
+    <div className={`${styles.sectionHeader} ${center ? styles.centered : ''}`}>
+      {kicker ? <p className={styles.sectionKicker}>{kicker}</p> : null}
+      <h2 className={styles.sectionTitle}>{title}</h2>
+      {description ? <p className={styles.sectionDescription}>{description}</p> : null}
+    </div>
+  )
+}
 
 export default function HomePage() {
-  useEffect(() => {
-  document.title = 'CirclOS | Transforming Waste & Green Claims'
-  let desc = document.querySelector('meta[name="description"]')
-  if (!desc) {
-    desc = document.createElement('meta')
-    desc.setAttribute('name', 'description')
-    document.head.appendChild(desc)
-  }
-  desc.setAttribute(
-    'content',
-    'CirclOS helps businesses simplify green claims compliance, manage waste exchange, and move faster with trustworthy environmental operations.'
-  )
-}, [])
-  return (
-    <div className="container">
-      {/* Accessibility skip link for keyboard navigation */}
-      <a href="#main" className="skip-link">Skip to Content</a>
+  const navigate = useNavigate()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-      {/* Header: Sticky top nav with logo & actions */}
-      <header className="header">
-        <div className="logo-container">
-          <Link to="/" aria-label="CirclOS Home" className="logo">
-            <span className="logo-icon">C</span>
-            <span className="logo-text">CirclOS</span>
-          </Link>
-        </div>
-        <nav className="main-nav" aria-label="Main Navigation">
-          <a href="#about">About</a>
-          <a href="#solutions">Solutions</a>
-          <a href="#resources">Resources</a>
-          <a href="#contact">Contact</a>
-        </nav>
-        <div className="auth-buttons">
-          <Link to="/login" className="btn secondary">Log In</Link>
-          <Link to="/login?mode=signup" className="btn primary">Get Started</Link>
+  useEffect(() => {
+    document.title = 'CirclOS | Industrial Waste Exchange and ECGT Compliance'
+
+    let descriptionTag = document.querySelector('meta[name="description"]')
+    if (!descriptionTag) {
+      descriptionTag = document.createElement('meta')
+      descriptionTag.setAttribute('name', 'description')
+      document.head.appendChild(descriptionTag)
+    }
+
+    descriptionTag.setAttribute(
+      'content',
+      'CirclOS helps manufacturing SMEs turn industrial waste into revenue while creating legally defensible sustainability claims.',
+    )
+  }, [])
+
+  useEffect(() => {
+    const closeMenuOnEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', closeMenuOnEscape)
+    return () => window.removeEventListener('keydown', closeMenuOnEscape)
+  }, [])
+
+  const goTo = (path) => {
+    setIsMenuOpen(false)
+    navigate(path)
+  }
+
+  const closeMenu = () => setIsMenuOpen(false)
+
+  return (
+    <div className={styles.page}>
+      <a className={styles.skipLink} href="#main-content">
+        Skip to main content
+      </a>
+
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <button
+            type="button"
+            className={styles.brand}
+            onClick={() => goTo('/')}
+            aria-label="Go to CirclOS homepage"
+          >
+            <span className={styles.brandMark}>C</span>
+            <span className={styles.brandName}>CirclOS</span>
+          </button>
+
+          <button
+            type="button"
+            className={styles.menuToggle}
+            onClick={() => setIsMenuOpen((open) => !open)}
+            aria-controls="primary-navigation"
+            aria-expanded={isMenuOpen}
+            aria-label="Toggle navigation menu"
+          >
+            <span className={styles.menuToggleBar} />
+            <span className={styles.menuToggleBar} />
+            <span className={styles.menuToggleBar} />
+          </button>
+
+          <nav
+            id="primary-navigation"
+            aria-label="Primary"
+            className={`${styles.nav} ${isMenuOpen ? styles.navOpen : ''}`}
+          >
+            {navItems.map((item) => (
+              <a key={item.label} href={item.href} onClick={closeMenu} className={styles.navLink}>
+                {item.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className={`${styles.actions} ${isMenuOpen ? styles.actionsOpen : ''}`}>
+            <button type="button" className={`${styles.button} ${styles.buttonGhost}`} onClick={() => goTo('/login')}>
+              Login
+            </button>
+            <button
+              type="button"
+              className={`${styles.button} ${styles.buttonPrimary}`}
+              onClick={() => goTo('/registercompany')}
+            >
+              Sign Up
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Main hero section */}
-      <main id="main" className="main-content">
-        <section className="hero">
-          <div className="hero-content">
-            <h1 className="headline">Reduce Waste & Save Up To 30%</h1>
-            <p className="subheadline">
-              CirclOS empowers responsible businesses to streamline environmental compliance and waste management—saving costs and boosting sustainability.
+      <main id="main-content" className={styles.main}>
+        <section className={styles.hero} aria-labelledby="hero-title">
+          <motion.div
+            className={styles.heroContent}
+            initial={{ opacity: 0, x: -28 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+          >
+            <p className={styles.heroKicker}>Dual-product platform for circular manufacturing growth</p>
+            <h1 id="hero-title" className={styles.heroTitle}>
+              Turn Industrial Waste into Revenue - and Verified Compliance
+            </h1>
+            <p className={styles.heroSubtitle}>
+              Reduce disposal costs, generate new revenue from byproducts, and stay compliant with EU anti-greenwashing
+              requirements through evidence-backed workflows.
             </p>
-            <div className="cta-group">
-              <Link to="/login?mode=signup" className="btn primary large">Get Started</Link>
-              <Link to="/login" className="btn secondary large">Learn More</Link>
+            <div className={styles.heroCtas}>
+              <button
+                type="button"
+                className={`${styles.button} ${styles.buttonPrimary}`}
+                onClick={() => goTo('/registercompany')}
+              >
+                Get Started
+              </button>
+              <button
+                type="button"
+                className={`${styles.button} ${styles.buttonGhost}`}
+                onClick={() => goTo('/dashboard')}
+              >
+                View Demo
+              </button>
             </div>
-            <p className="urgency-note">Limited onboarding slots available this month—join now!</p>
-          </div>
-          <div className="hero-visual">
-            {/* A clean, animated abstract graphic or image */}
-            <div className="graphic-container">
-              {/* Placeholder for SVG or image */}
-              <svg viewBox="0 0 600 400" className="hero-svg" aria-hidden="true">
-                {/* Example animated shapes for visual appeal */}
-                <circle cx="100" cy="200" r="50" fill="#4CAF50" opacity="0.8" />
-                <circle cx="500" cy="150" r="70" fill="#81C784" opacity="0.6" />
-                <rect x="250" y="300" width="100" height="50" fill="#388E3C" rx="8" />
-              </svg>
-            </div>
-          </div>
+            <ul className={styles.heroFlowList} aria-label="Core CirclOS flow">
+              <li>Waste</li>
+              <li>AI Matching</li>
+              <li>Transaction</li>
+              <li>Evidence Record</li>
+              <li>Compliance</li>
+            </ul>
+          </motion.div>
+
+          <motion.div
+            className={styles.heroVisual}
+            aria-hidden="true"
+            initial={{ opacity: 0, x: 28 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: 'easeOut', delay: 0.12 }}
+          >
+            <svg viewBox="0 0 520 380" className={styles.heroSvg}>
+              <defs>
+                <linearGradient id="heroGradient" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#1F7A63" />
+                  <stop offset="100%" stopColor="#4CAF50" />
+                </linearGradient>
+              </defs>
+
+              <circle cx="260" cy="190" r="112" className={styles.heroRingBack} />
+
+              <motion.circle
+                cx="260"
+                cy="190"
+                r="112"
+                className={styles.heroRingFront}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
+                style={{ transformOrigin: '260px 190px' }}
+              />
+
+              <path d="M150 118l42-28M330 290l40-28M376 150l36 14M110 230l38 10" className={styles.heroLinks} />
+
+              <circle cx="145" cy="116" r="26" fill="url(#heroGradient)" />
+              <circle cx="390" cy="166" r="26" fill="url(#heroGradient)" />
+              <circle cx="350" cy="294" r="26" fill="url(#heroGradient)" />
+              <circle cx="116" cy="236" r="26" fill="url(#heroGradient)" />
+              <circle cx="260" cy="190" r="42" fill="#F4F1EC" stroke="#1F7A63" strokeWidth="3" />
+
+              <text x="260" y="186" textAnchor="middle" className={styles.heroTextTop}>
+                DATA
+              </text>
+              <text x="260" y="206" textAnchor="middle" className={styles.heroTextBottom}>
+                FLYWHEEL
+              </text>
+            </svg>
+          </motion.div>
         </section>
 
-        {/* Trusted by logos / social proof */}
-        <section className="trust-section">
-          <p className="trust-intro">Trusted by industry leaders committed to sustainability</p>
-          <div className="logos-row">
-            {/* Replace with actual logos or images */}
-            <div className="logo">NorthGrid</div>
-            <div className="logo">TerraWorks</div>
-            <div className="logo">BlueRoot</div>
-            <div className="logo">Alpine Eco</div>
-          </div>
-        </section>
-
-        {/* Core value pillars */}
-        <section className="pillars" id="solutions">
-          <h2 className="section-heading">What CirclOS Enables You To Achieve</h2>
-          <div className="pillar-cards">
-            {[
-              {
-                code: '01',
-                title: 'Defend Green Claims',
-                text: 'Build compliant messaging with clear evidence trails and review checkpoints.',
-              },
-              {
-                code: '02',
-                title: 'Accelerate Waste Exchange',
-                text: 'Match reusable materials with verified buyers, reducing friction and delays.',
-              },
-              {
-                code: '03',
-                title: 'Operational Guidance',
-                text: 'Keep policies, reporting, and sustainability aligned without added overhead.',
-              },
-            ].map((pillar) => (
-              <div key={pillar.code} className="pillar-card">
-                <div className="pill-code">{pillar.code}</div>
-                <h3 className="pill-title">{pillar.title}</h3>
-                <p className="pill-text">{pillar.text}</p>
-              </div>
+        <motion.section
+          className={styles.trustBar}
+          aria-label="Trust metrics"
+          variants={sectionReveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <ul className={styles.metricGrid}>
+            {trustMetrics.map((metric) => (
+              <li key={metric.id} className={styles.metricCard}>
+                <p className={styles.metricValue}>{metric.value}</p>
+                <p className={styles.metricLabel}>{metric.label}</p>
+                <p className={styles.metricDescription}>{metric.description}</p>
+              </li>
             ))}
-          </div>
-        </section>
+          </ul>
+        </motion.section>
 
-        {/* Services overview */}
-        <section className="services" id="solutions">
-          <h2 className="section-heading">Our Solutions</h2>
-          <div className="service-cards">
-            {[
-              {
-                title: 'Green Claims Compliance',
-                text: 'Review sustainability claims before they create risk.',
-              },
-              {
-                title: 'Waste Exchange Programs',
-                text: 'Connect materials with verified reuse opportunities.',
-              },
-              {
-                title: 'Sustainability Consulting',
-                text: 'Get expert advice tailored to your operational needs.',
-              },
-            ].map((service) => (
-              <div key={service.title} className="service-card">
-                <h3 className="service-title">{service.title}</h3>
-                <p className="service-text">{service.text}</p>
-                <a href="#contact" className="link-cta">Discover More</a>
-              </div>
+        <motion.section
+          id="solutions"
+          className={styles.sectionShell}
+          variants={sectionReveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <SectionHeader
+            kicker="Core capabilities"
+            title="One platform for circular transactions and defensible compliance"
+            description="CirclOS connects operational teams, commercial workflows, and compliance requirements across a single data foundation."
+            center
+          />
+
+          <motion.div
+            className={styles.pillarGrid}
+            variants={cardStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {valuePillars.map((pillar) => (
+              <motion.article
+                key={pillar.id}
+                className={styles.pillarCard}
+                variants={cardReveal}
+                whileHover={{ y: -8, boxShadow: '0 18px 30px rgba(31, 122, 99, 0.18)' }}
+              >
+                <div className={styles.pillarIconWrap}>
+                  <PillarIcon name={pillar.icon} />
+                </div>
+                <h3 className={styles.pillarTitle}>{pillar.title}</h3>
+                <p className={styles.pillarText}>{pillar.description}</p>
+              </motion.article>
             ))}
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
-        {/* About section */}
-        <section className="about" id="about">
-          <div className="about-grid">
-            <div className="about-text">
-              <h2 className="section-heading">About CirclOS</h2>
+        <motion.section
+          id="how-it-works"
+          className={styles.sectionShell}
+          variants={sectionReveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <SectionHeader
+            kicker="How it works"
+            title="A flywheel where every transaction strengthens future compliance"
+            description="CirclOS transforms each waste transaction into richer evidence, smarter matching inputs, and stronger compliance outputs."
+          />
+
+          <div className={styles.flowLayout}>
+            <ol className={styles.flowList}>
+              {flywheelSteps.map((step, index) => (
+                <li key={step.id} className={styles.flowItem}>
+                  <span className={styles.flowNumber}>{index + 1}</span>
+                  <div className={styles.flowContent}>
+                    <h3>{step.title}</h3>
+                    <p>{step.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <aside className={styles.flywheelPanel} aria-label="Data flywheel explanation">
+              <h3>Data Flywheel Effect</h3>
               <p>
-                CirclOS provides a disciplined, transparent platform to streamline green claims, waste exchange, and sustainability operations—all designed for clarity and trust.
+                Each completed transaction improves matching relevance and strengthens claim evidence. Better evidence then
+                drives faster approvals and higher trust in future deals.
               </p>
-              <Link to="/login?mode=signup" className="btn secondary">Learn More</Link>
-            </div>
-            <div className="about-image">
-              {/* Placeholder for illustration */}
-              <img src="https://via.placeholder.com/400x300?text=Eco+Platform" alt="Eco platform illustration" />
-            </div>
+              <p className={styles.flywheelLine}>Waste -&gt; Match -&gt; Transaction -&gt; Evidence -&gt; Compliance -&gt; Better Match</p>
+            </aside>
           </div>
-        </section>
+        </motion.section>
 
-        {/* Testimonials */}
-        <section className="testimonials" id="testimonials">
-          <h2 className="section-heading">Customer Success Stories</h2>
-          <div className="testimonial-grid">
-            {[
-              {
-                quote: 'CirclOS gave us a calmer, more defensible process for claims and approvals.',
-                name: 'Compliance Lead',
-                company: 'Manufacturing Client',
-              },
-              {
-                quote: 'We reduced waste handling delays and made our circular workflow easier.',
-                name: 'Operations Director',
-                company: 'Circularity Client',
-              },
-              {
-                quote: 'The platform is clear, practical, and focused on our team’s needs.',
-                name: 'Sustainability Manager',
-                company: 'Environmental Client',
-              },
-            ].map((t, idx) => (
-              <blockquote key={idx} className="testimonial-card">
-                <p className="quote">“{t.quote}”</p>
+        <motion.section
+          className={styles.sectionShell}
+          variants={sectionReveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <SectionHeader
+            kicker="Solutions"
+            title="Built for SMEs and enterprise sustainability programs"
+            description="Deploy the same core workflow across lean operations teams and complex CSRD reporting environments."
+            center
+          />
+
+          <div className={styles.solutionGrid}>
+            {solutionSegments.map((segment) => (
+              <motion.article key={segment.id} className={styles.solutionCard} whileHover={{ y: -6 }}>
+                <img
+                  src="/favicon.svg"
+                  alt={`${segment.title} illustration`}
+                  loading="lazy"
+                  decoding="async"
+                  className={styles.solutionImage}
+                />
+                <h3>{segment.title}</h3>
+                <p className={styles.solutionSubtitle}>{segment.subtitle}</p>
+                <ul>
+                  {segment.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </motion.article>
+            ))}
+          </div>
+        </motion.section>
+
+        <motion.section
+          className={styles.sectionShell}
+          variants={sectionReveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <SectionHeader
+            kicker="Testimonials"
+            title="Teams use CirclOS to cut costs and simplify compliance"
+            center
+          />
+
+          <motion.div
+            className={styles.testimonialGrid}
+            variants={cardStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {testimonials.map((testimonial) => (
+              <motion.blockquote key={testimonial.id} className={styles.testimonialCard} variants={cardReveal}>
+                <p className={styles.quoteMark}>"</p>
+                <p className={styles.testimonialQuote}>{testimonial.quote}</p>
                 <footer>
-                  <strong>{t.name}</strong> <span>{t.company}</span>
+                  <p className={styles.testimonialName}>{testimonial.name}</p>
+                  <p className={styles.testimonialMeta}>
+                    {testimonial.role} - {testimonial.company}
+                  </p>
                 </footer>
-              </blockquote>
+              </motion.blockquote>
+            ))}
+          </motion.div>
+        </motion.section>
+
+        <motion.section
+          id="resources"
+          className={styles.sectionShell}
+          variants={sectionReveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <SectionHeader
+            kicker="Resources"
+            title="Tools to help your team ship circularity faster"
+            center
+          />
+
+          <div className={styles.resourceGrid}>
+            {resources.map((resource) => (
+              <motion.article key={resource.id} className={styles.resourceCard} whileHover={{ y: -6 }}>
+                <p className={styles.resourceCategory}>{resource.category}</p>
+                <h3>{resource.title}</h3>
+                <p>{resource.description}</p>
+                <a href="#contact" className={styles.resourceLink}>
+                  Explore Resource
+                </a>
+              </motion.article>
             ))}
           </div>
-        </section>
+        </motion.section>
 
-        {/* Resources Section */}
-        <section className="resources" id="resources">
-          <h2 className="section-heading">Resources for Your Team</h2>
-          <div className="resource-grid">
-            {[
-              { category: 'Guide', title: 'Substantiating Green Claims' },
-              { category: 'Checklist', title: 'Waste Exchange Readiness' },
-              { category: 'Update', title: 'Compliance Expectations' },
-            ].map((res, idx) => (
-              <div key={idx} className="resource-card">
-                <span className="resource-category">{res.category}</span>
-                <h3 className="resource-title">{res.title}</h3>
-                <a href="#contact" className="link-cta">Read More</a>
-              </div>
-            ))}
+        <motion.section
+          id="contact"
+          className={styles.finalCta}
+          variants={sectionReveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <h2>Start Building a Circular Operation Today</h2>
+          <p>Launch quickly with guided onboarding, then scale to enterprise-grade reporting when you are ready.</p>
+          <div className={styles.finalCtaActions}>
+            <button
+              type="button"
+              className={`${styles.button} ${styles.buttonPrimary}`}
+              onClick={() => goTo('/registercompany')}
+            >
+              Get Started
+            </button>
+            <a href="mailto:sales@circlos.com" className={`${styles.button} ${styles.buttonGhost}`}>
+              Contact Sales
+            </a>
           </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="call-to-action" id="contact">
-          <h2 className="section-heading">Ready to Transform Your Waste & Claims?</h2>
-          <div className="cta-buttons">
-            <Link to="/login?mode=signup" className="btn primary large">Sign Up</Link>
-            <Link to="/login" className="btn secondary large">Log In</Link>
-            <a href="mailto:hello@circlos.example" className="btn secondary large">Contact Us</a>
-          </div>
-        </section>
+        </motion.section>
       </main>
 
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-top">
-          <div className="footer-brand">
-            <Link to="/" aria-label="CirclOS Home" className="footer-logo">
-              <span className="footer-logo-icon">C</span>
-              <span className="footer-logo-text">CirclOS</span>
-            </Link>
-            <p>Leading platform for environmental compliance, waste exchange, and sustainable claims management.</p>
+      <footer className={styles.footer}>
+        <div className={styles.footerGrid}>
+          <div>
+            <button
+              type="button"
+              className={styles.brand}
+              onClick={() => goTo('/')}
+              aria-label="Go to CirclOS homepage"
+            >
+              <span className={styles.brandMark}>C</span>
+              <span className={styles.brandName}>CirclOS</span>
+            </button>
+            <p className={styles.footerCopy}>
+              Turn industrial waste into revenue and legally defensible sustainability claims.
+            </p>
           </div>
-          <div className="footer-links">
-            <h3>Quick Links</h3>
-            <ul>
-              <li><a href="#">Privacy Policy</a></li>
-              <li><a href="#">Terms of Service</a></li>
-              <li><a href="#">FAQs</a></li>
+
+          <div>
+            <h3 className={styles.footerHeading}>Navigation</h3>
+            <ul className={styles.footerList}>
+              {footerLinks.map((link) => (
+                <li key={link.label}>
+                  <a href={link.href}>{link.label}</a>
+                </li>
+              ))}
             </ul>
           </div>
-          <div className="footer-social">
-            <h3>Follow Us</h3>
-            <ul>
-              <li><a href="https://www.linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a></li>
-              <li><a href="https://www.x.com" target="_blank" rel="noreferrer">X</a></li>
-              <li><a href="https://www.youtube.com" target="_blank" rel="noreferrer">YouTube</a></li>
+
+          <div>
+            <h3 className={styles.footerHeading}>Follow</h3>
+            <ul className={styles.socialList}>
+              {socialLinks.map((social) => (
+                <li key={social.label}>
+                  <a href={social.href} target="_blank" rel="noreferrer" className={styles.socialLink}>
+                    <span className={styles.socialIcon}>
+                      <FooterSocialIcon symbolId={social.icon} />
+                    </span>
+                    <span>{social.label}</span>
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
-          <div className="footer-newsletter">
-            <h3>Subscribe</h3>
-            <form onSubmit={(e) => e.preventDefault()}>
-              <label htmlFor="newsletterEmail" className="sr-only">Email</label>
-              <input type="email" id="newsletterEmail" placeholder="Your Email" />
-              <button className="btn secondary" type="submit">Subscribe</button>
+
+          <div>
+            <h3 className={styles.footerHeading}>Newsletter</h3>
+            <form className={styles.newsletterForm} onSubmit={(event) => event.preventDefault()}>
+              <label htmlFor="newsletter-email" className={styles.srOnly}>
+                Email address
+              </label>
+              <input
+                id="newsletter-email"
+                type="email"
+                name="email"
+                autoComplete="email"
+                placeholder="Work email"
+                className={styles.newsletterInput}
+              />
+              <button type="submit" className={`${styles.button} ${styles.buttonPrimary}`}>
+                Subscribe
+              </button>
             </form>
           </div>
         </div>
-        <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} CirclOS. All rights reserved.</p>
+
+        <div className={styles.footerBottom}>
+          <p>{new Date().getFullYear()} CirclOS. All rights reserved.</p>
         </div>
       </footer>
-
-      {/* Styles (for demonstration, embed or move to CSS files as needed) */}
-      <style jsx>{`
-        /* Reset & base styles */
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-        }
-        body {
-          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-          line-height: 1.6;
-          color: #333;
-          background-color: #fff;
-        }
-        a {
-          text-decoration: none;
-          color: inherit;
-        }
-        /* Container */
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        /* Skip link */
-        .skip-link {
-          position: absolute;
-          top: -40px;
-          left: 0;
-          background: #000;
-          color: #fff;
-          padding: 8px;
-          z-index: 1000;
-        }
-        .skip-link:focus {
-          top: 0;
-        }
-
-        /* Header styles */
-        .header {
-          position: sticky;
-          top: 0;
-          background: #fff;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 1rem 2rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-          z-index: 999;
-        }
-        .logo {
-          display: flex;
-          align-items: center;
-          font-size: 1.5rem;
-          font-weight: bold;
-          text-decoration: none;
-        }
-        .logo-icon {
-          background-color: #4caf50;
-          border-radius: 50%;
-          width: 2rem;
-          height: 2rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #fff;
-          margin-right: 0.5rem;
-        }
-        .main-nav {
-          display: flex;
-          gap: 1.5rem;
-        }
-        .auth-buttons {
-          display: flex;
-          gap: 1rem;
-        }
-        /* Main content styles */
-        .main-content {
-          padding: 3rem 1rem;
-        }
-        /* Hero */
-        .hero {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          justify-content: space-between;
-          padding: 4rem 2rem;
-          background: #f0f4f8;
-        }
-        .hero-content {
-          flex: 1 1 50%;
-          max-width: 600px;
-        }
-        .headline {
-          font-size: 2.5rem;
-          font-weight: 700;
-          margin-bottom: 1rem;
-          animation: fadeInUp 1s ease forwards;
-        }
-        .subheadline {
-          font-size: 1.25rem;
-          margin-bottom: 2rem;
-          color: #555;
-          animation: fadeInUp 1.2s ease forwards;
-        }
-        .cta-group {
-          display: flex;
-          gap: 1rem;
-          margin-bottom: 2rem;
-        }
-        .btn {
-          padding: 0.75rem 1.5rem;
-          border-radius: 4px;
-          font-size: 1rem;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        .btn.primary {
-          background-color: #4caf50;
-          color: #fff;
-        }
-        .btn.primary:hover {
-          background-color: #388e3c;
-        }
-        .btn.secondary {
-          background-color: transparent;
-          border: 2px solid #4caf50;
-          color: #4caf50;
-        }
-        .btn.secondary:hover {
-          background-color: #4caf50;
-          color: #fff;
-        }
-        .large {
-          font-size: 1.25rem;
-        }
-        .urgency-note {
-          font-size: 0.9rem;
-          color: #d32f2f;
-          font-weight: 600;
-          animation: fadeIn 1.5s ease forwards;
-        }
-
-        /* Visual graphic */
-        .hero-visual {
-          flex: 1 1 45%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          padding: 2rem;
-        }
-        .graphic-container {
-          width: 100%;
-          max-width: 400px;
-        }
-        /* trust logos */
-        .trust-section {
-          text-align: center;
-          padding: 3rem 1rem;
-        }
-        .trust-intro {
-          font-size: 1.2rem;
-          margin-bottom: 1.5rem;
-        }
-        .logos-row {
-          display: flex;
-          gap: 2rem;
-          justify-content: center;
-          flex-wrap: wrap;
-        }
-        .logo {
-          font-weight: bold;
-          font-size: 1.1rem;
-        }
-
-        /* Pillars & solutions */
-        .pillars, .services {
-          padding: 4rem 2rem;
-          background: #fff;
-        }
-        .section-heading {
-          text-align: center;
-          font-size: 2rem;
-          margin-bottom: 2rem;
-          font-weight: 700;
-        }
-        .pillar-cards, .service-cards {
-          display: grid;
-          gap: 2rem;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        }
-        .pillar-card, .service-card {
-          background: #fafafa;
-          padding: 2rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-          position: relative;
-          transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .pillar-card:hover, .service-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .pill-code {
-          position: absolute;
-          top: -10px;
-          right: -10px;
-          background: #4caf50;
-          color: #fff;
-          font-weight: bold;
-          padding: 0.3rem 0.6rem;
-          border-radius: 50%;
-          font-size: 0.8rem;
-        }
-        .pill-title {
-          font-size: 1.2rem;
-          margin-bottom: 1rem;
-        }
-        /* Testimonials & resources */
-        .testimonials, .resources {
-          padding: 4rem 2rem;
-          background: #f9f9f9;
-        }
-        .testimonial-grid, .resource-grid {
-          display: grid;
-          gap: 2rem;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        }
-        .testimonial-card, .resource-card {
-          background: #fff;
-          padding: 1.5rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-        }
-        .quote {
-          font-style: italic;
-          margin-bottom: 1rem;
-        }
-        footer {
-          background: #222;
-          color: #fff;
-          padding: 3rem 2rem;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 2rem;
-        }
-        .footer-top {
-          display: flex;
-          flex: 1 1 100%;
-          flex-wrap: wrap;
-          gap: 2rem;
-        }
-        .footer-brand, .footer-links, .footer-social, .footer-newsletter {
-          flex: 1 1 200px;
-        }
-        .footer-logo {
-          display: flex;
-          align-items: center;
-          font-size: 1.8rem;
-          font-weight: bold;
-          margin-bottom: 1rem;
-        }
-        .footer-logo-icon {
-          background-color: #4caf50;
-          width: 2.2rem;
-          height: 2.2rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-          margin-right: 0.5rem;
-          color: #fff;
-        }
-        h3 {
-          margin-bottom: 0.75rem;
-        }
-        ul {
-          list-style: none;
-        }
-        ul li {
-          margin-bottom: 0.5rem;
-        }
-        .sp-newsletter input {
-          padding: 0.5rem;
-          width: calc(100% - 100px);
-          border-radius: 4px;
-          border: 1px solid #ccc;
-        }
-        .sp-newsletter button {
-          padding: 0.5rem 1rem;
-          margin-left: 1rem;
-        }
-        /* Responsive & animations */
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .animate-slide-in {
-          animation: fadeInUp 1s forwards;
-        }
-        .animate-fade-in {
-          animation: fadeIn 1.5s forwards;
-        }
-        /* Buttons hover effect */
-        .btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        /* Media Queries for responsiveness */
-        @media(max-width: 768px){
-          .hero {
-            flex-direction: column;
-            padding: 2rem 1rem;
-          }
-          .hero-content, .hero-visual {
-            flex: 1 1 100%;
-            max-width: 100%;
-          }
-          .header {
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 1rem;
-          }
-          .main-nav {
-            margin-top: 1rem;
-            gap: 1rem;
-          }
-        }
-      `}</style>
     </div>
   )
 }
