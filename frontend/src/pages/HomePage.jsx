@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import CirclOSFlywheel from '../components/CirclOSFlywheel'
 import styles from './HomePage.module.css'
 
 const navItems = [
@@ -243,123 +244,6 @@ function SectionHeader({ kicker, title, description, center = false }) {
   )
 }
 
-function FlywheelExchangeVisual() {
-  return (
-    <svg viewBox="0 0 560 340" className={styles.heroSvg}>
-      <defs>
-        <linearGradient id="exchangeGradient" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#1F7A63" />
-          <stop offset="100%" stopColor="#4CAF50" />
-        </linearGradient>
-      </defs>
-
-      <rect x="16" y="16" width="528" height="308" rx="24" className={styles.flywheelBoard} />
-
-      <path d="M186 124 C 246 62 314 62 374 124" className={styles.exchangeArc} />
-      <path d="M374 154 C 314 214 246 214 186 154" className={styles.paymentArc} />
-      <path d="M280 182 L280 220" className={styles.dataBridge} />
-
-      <rect x="42" y="92" width="150" height="88" rx="14" className={`${styles.companyNode} ${styles.companyNodeSeller}`} />
-      <text x="117" y="118" textAnchor="middle" className={styles.companyNodeTitle}>
-        Company A
-      </text>
-      <text x="117" y="139" textAnchor="middle" className={styles.companyNodeLine}>
-        Sells byproduct
-      </text>
-      <text x="117" y="159" textAnchor="middle" className={styles.companyNodeLine}>
-        Converts waste to revenue
-      </text>
-
-      <rect x="368" y="92" width="150" height="88" rx="14" className={`${styles.companyNode} ${styles.companyNodeBuyer}`} />
-      <text x="443" y="118" textAnchor="middle" className={styles.companyNodeTitle}>
-        Company B
-      </text>
-      <text x="443" y="139" textAnchor="middle" className={styles.companyNodeLine}>
-        Buys feedstock
-      </text>
-      <text x="443" y="159" textAnchor="middle" className={styles.companyNodeLine}>
-        Lowers material cost
-      </text>
-
-      <rect x="214" y="220" width="132" height="78" rx="14" className={styles.centerNode} />
-      <text x="280" y="246" textAnchor="middle" className={styles.centerNodeTitle}>
-        CirclOS Record
-      </text>
-      <text x="280" y="266" textAnchor="middle" className={styles.centerNodeLine}>
-        Transaction proof
-      </text>
-      <text x="280" y="284" textAnchor="middle" className={styles.centerNodeLine}>
-        Compliance ready
-      </text>
-
-      <motion.g
-        className={`${styles.benefitBadge} ${styles.benefitBadgeSeller}`}
-        animate={{ scale: [1, 1.03, 1] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <rect x="38" y="64" width="158" height="20" rx="10" />
-        <text x="117" y="78" textAnchor="middle">
-          + Seller revenue
-        </text>
-      </motion.g>
-
-      <motion.g
-        className={`${styles.benefitBadge} ${styles.benefitBadgeBuyer}`}
-        animate={{ scale: [1, 1.03, 1] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
-      >
-        <rect x="364" y="64" width="158" height="20" rx="10" />
-        <text x="443" y="78" textAnchor="middle">
-          + Buyer savings
-        </text>
-      </motion.g>
-
-      <motion.g
-        className={styles.flowTokenWaste}
-        animate={{ x: [0, 48, 98, 148, 188, 0], y: [0, -24, -32, -24, 0, 0] }}
-        transition={{ duration: 5.4, repeat: Infinity, ease: 'linear' }}
-      >
-        <circle cx="186" cy="124" r="11" />
-        <text x="186" y="124" textAnchor="middle">
-          W
-        </text>
-      </motion.g>
-
-      <motion.g
-        className={styles.flowTokenMoney}
-        animate={{ x: [0, -48, -98, -148, -188, 0], y: [0, 24, 32, 24, 0, 0] }}
-        transition={{ duration: 5.4, repeat: Infinity, ease: 'linear', delay: 1.2 }}
-      >
-        <circle cx="374" cy="154" r="11" />
-        <text x="374" y="154" textAnchor="middle">
-          $
-        </text>
-      </motion.g>
-
-      <motion.g
-        className={styles.flowTokenData}
-        animate={{ x: [0, 4, 0, -4, 0], y: [0, 16, 34, 52, 0] }}
-        transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <circle cx="280" cy="182" r="9" />
-        <text x="280" y="182" textAnchor="middle">
-          D
-        </text>
-      </motion.g>
-
-      <text x="280" y="76" textAnchor="middle" className={styles.flowLabel}>
-        Waste sold to buyer
-      </text>
-      <text x="280" y="240" textAnchor="middle" className={styles.flowLabel}>
-        Payment returns to seller
-      </text>
-      <text x="280" y="312" textAnchor="middle" className={styles.flowCaption}>
-        One simple loop: exchange materials, both profit, and keep proof for compliance.
-      </text>
-    </svg>
-  )
-}
-
 export default function HomePage() {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -504,7 +388,7 @@ export default function HomePage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: 'easeOut', delay: 0.12 }}
           >
-            <FlywheelExchangeVisual />
+            <CirclOSFlywheel />
           </motion.div>
         </section>
 
