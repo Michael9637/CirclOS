@@ -263,19 +263,6 @@ export default function Login() {
           {error ? <div className={`${styles.notice} ${styles.noticeError}`}>{error}</div> : null}
           {message ? <div className={`${styles.notice} ${styles.noticeSuccess}`}>{message}</div> : null}
         </section>
-
-        <aside className={styles.sidePanel}>
-          <h2>Integrated Circular Operations</h2>
-          <p>
-            Once signed in, your workspace uses the same visual system and navigation style as the homepage across every
-            tool page.
-          </p>
-          <ul className={styles.featureList}>
-            <li>List waste streams and match with buyers in one flow.</li>
-            <li>Run compliance scans and capture evidence with shared context.</li>
-            <li>Return to Home instantly through unified navigation.</li>
-          </ul>
-        </aside>
       </main>
     </div>
   )
