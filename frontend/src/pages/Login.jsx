@@ -1,16 +1,31 @@
 import { useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase, supabaseConfigError } from '../supabase'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 import { createCompany } from '../api'
+import styles from './Login.module.css'
+
+function normalizeLoginError(rawMessage) {
+  const message = (rawMessage || '').toLowerCase()
+
+  if (message.includes('invalid login credentials')) {
+    return 'No account was found for these credentials. Create an account first or try again.'
+  }
+
+  if (message.includes('email not confirmed')) {
+    return 'Your account exists but email confirmation is still pending. Check your inbox before signing in.'
+  }
+
+  return rawMessage || 'Sign in failed. Please try again.'
+}
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
   const [searchParams] = useSearchParams()
   const [mode, setMode] = useState(searchParams.get('mode') === 'signup' ? 'signup' : 'login')
-  const [message, setMessage] = useState('')
   const [companyForm, setCompanyForm] = useState({
     name: '',
     sector: '',
@@ -19,214 +34,249 @@ export default function Login() {
   })
   const navigate = useNavigate()
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    setMessage('')
-
-    if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) setError(error.message)
-      else navigate('/app/dashboard')
-    } else {
-      const { data, error } = await supabase.auth.signUp({ email, password })
-      if (error) {
-        setError(error.message)
-      } else {
-        const signupUserId = data?.user?.id
-        if (signupUserId) {
-          try {
-            await createCompany({
-              ...companyForm,
-              user_id: signupUserId,
-            })
-            setMessage('Account created and company profile saved. Check your email to confirm your account, then sign in.')
-          } catch (companyError) {
-            const detail = companyError?.response?.data?.detail
-            setError(typeof detail === 'string' ? detail : 'Account created, but company profile setup failed. You can complete it later in Profile.')
-          }
-        } else {
-          setMessage('Account created. Check your email to confirm your account, then sign in.')
-        }
-      }
-    }
-    setLoading(false)
-  }
+  const isSignup = mode === 'signup'
 
   const handleCompanyChange = (event) => {
     const { name, value } = event.target
     setCompanyForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  const card = {
-    width: '400px', margin: '80px auto', background: 'white',
-    padding: '40px', borderRadius: '12px',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.1)'
+  const toggleMode = () => {
+    setMode((currentMode) => (currentMode === 'login' ? 'signup' : 'login'))
+    setError('')
+    setMessage('')
   }
 
-  const inputStyle = {
-    width: '100%', padding: '10px 14px', border: '1px solid #e0e0dc',
-    borderRadius: '6px', fontSize: '15px', marginTop: '6px',
-    marginBottom: '16px', display: 'block'
-  }
+  async function handleSubmit(event) {
+    event.preventDefault()
+    setLoading(true)
+    setError('')
+    setMessage('')
 
-  const btnStyle = {
-    width: '100%', padding: '13px', background: '#1a3a1a',
-    color: 'white', border: 'none', borderRadius: '6px',
-    fontSize: '15px', fontWeight: '500', cursor: 'pointer',
-    opacity: loading ? 0.6 : 1, marginTop: '8px'
+    if (!supabase) {
+      setError('Authentication service is unavailable right now. Please try again later.')
+      setLoading(false)
+      return
+    }
+
+    if (!isSignup) {
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+
+      if (signInError) {
+        setError(normalizeLoginError(signInError.message))
+        setLoading(false)
+        return
+      }
+
+      navigate('/app/dashboard')
+      setLoading(false)
+      return
+    }
+
+    const { data, error: signUpError } = await supabase.auth.signUp({ email, password })
+
+    if (signUpError) {
+      setError(signUpError.message)
+      setLoading(false)
+      return
+    }
+
+    const signupUserId = data?.user?.id
+
+    if (signupUserId) {
+      try {
+        await createCompany({
+          ...companyForm,
+          user_id: signupUserId,
+        })
+      } catch (companyError) {
+        const detail = companyError?.response?.data?.detail
+        setError(
+          typeof detail === 'string'
+            ? detail
+            : 'Account created, but company profile setup failed. You can complete it later in Profile.'
+        )
+        setLoading(false)
+        return
+      }
+    }
+
+    setMessage('Account created. Check your email to confirm your account, then sign in.')
+    setMode('login')
+    setLoading(false)
   }
 
   if (supabaseConfigError) {
     return (
-      <div style={{ background: '#f7f7f5', minHeight: '100vh', padding: '40px 20px' }}>
-        <div
-          style={{
-            maxWidth: '680px',
-            margin: '40px auto',
-            background: '#fff4e5',
-            border: '1px solid #f8d7a8',
-            borderRadius: '10px',
-            padding: '20px 22px',
-            color: '#8a4b00',
-          }}
-        >
-          <h2 style={{ marginTop: 0, marginBottom: '10px' }}>Auth setup incomplete</h2>
-          <p style={{ margin: 0 }}>
-            {supabaseConfigError}
-          </p>
-        </div>
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <div className={styles.headerInner}>
+            <Link to="/" className={styles.brand} aria-label="Go to CirclOS homepage">
+              <span className={styles.brandMark}>C</span>
+              <span className={styles.brandName}>CirclOS</span>
+            </Link>
+          </div>
+        </header>
+
+        <main className={styles.main}>
+          <section className={styles.panel}>
+            <p className={styles.kicker}>Authentication</p>
+            <h1 className={styles.title}>Auth setup incomplete</h1>
+            <p className={`${styles.notice} ${styles.noticeError}`}>{supabaseConfigError}</p>
+          </section>
+        </main>
       </div>
     )
   }
 
   return (
-    <div style={{ background: '#f7f7f5', minHeight: '100vh' }}>
-      <div style={card}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#1a3a1a' }}>
-            Circl<span style={{ color: '#8BC34A' }}>OS</span>
-          </div>
-          <div style={{ color: '#9e9e9a', fontSize: '14px', marginTop: '4px' }}>
-            The Circular Operating System
-          </div>
+    <div className={styles.page}>
+      <a className={styles.skipLink} href="#main-content">
+        Skip to main content
+      </a>
+
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <Link to="/" className={styles.brand} aria-label="Go to CirclOS homepage">
+            <span className={styles.brandMark}>C</span>
+            <span className={styles.brandName}>CirclOS</span>
+          </Link>
+          <Link to="/" className={styles.backHome}>
+            Back to Home
+          </Link>
         </div>
+      </header>
 
-        <h2 style={{ fontSize: '18px', marginBottom: '24px', textAlign: 'center' }}>
-          {mode === 'login' ? 'Sign In' : 'Create Account'}
-        </h2>
+      <main id="main-content" className={styles.main}>
+        <section className={styles.panel}>
+          <p className={styles.kicker}>Account access</p>
+          <h1 className={styles.title}>{isSignup ? 'Create your CirclOS account' : 'Sign in to CirclOS'}</h1>
+          <p className={styles.subtitle}>
+            {isSignup
+              ? 'Create an account to access Waste, Compliance, Scanner, and Evidence workflows.'
+              : 'Only existing accounts can sign in. If you do not have one yet, create your account first.'}
+          </p>
 
-        <form onSubmit={handleSubmit}>
-          <label style={{ fontSize: '13px', fontWeight: '500', color: '#5c5c58' }}>
-            Email
-          </label>
-          <input
-            type="email" value={email} required
-            onChange={e => setEmail(e.target.value)}
-            style={inputStyle}
-          />
-          <label style={{ fontSize: '13px', fontWeight: '500', color: '#5c5c58' }}>
-            Password
-          </label>
-          <input
-            type="password" value={password} required
-            onChange={e => setPassword(e.target.value)}
-            style={inputStyle}
-          />
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <label className={styles.label} htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              required
+              onChange={(event) => setEmail(event.target.value)}
+              className={styles.input}
+              autoComplete="email"
+            />
 
-          {mode === 'signup' && (
-            <>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                Company Information
+            <label className={styles.label} htmlFor="password">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              required
+              onChange={(event) => setPassword(event.target.value)}
+              className={styles.input}
+              autoComplete={isSignup ? 'new-password' : 'current-password'}
+            />
+
+            {isSignup ? (
+              <div className={styles.companyGrid}>
+                <div>
+                  <label className={styles.label} htmlFor="company-name">
+                    Company Name
+                  </label>
+                  <input
+                    id="company-name"
+                    name="name"
+                    type="text"
+                    value={companyForm.name}
+                    required
+                    onChange={handleCompanyChange}
+                    className={styles.input}
+                  />
+                </div>
+
+                <div>
+                  <label className={styles.label} htmlFor="company-sector">
+                    Sector
+                  </label>
+                  <input
+                    id="company-sector"
+                    name="sector"
+                    type="text"
+                    value={companyForm.sector}
+                    required
+                    onChange={handleCompanyChange}
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.companyWide}>
+                  <label className={styles.label} htmlFor="company-location">
+                    Location
+                  </label>
+                  <input
+                    id="company-location"
+                    name="location"
+                    type="text"
+                    value={companyForm.location}
+                    required
+                    onChange={handleCompanyChange}
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.companyWide}>
+                  <label className={styles.label} htmlFor="company-description">
+                    Description
+                  </label>
+                  <textarea
+                    id="company-description"
+                    name="description"
+                    value={companyForm.description}
+                    onChange={handleCompanyChange}
+                    rows={3}
+                    className={styles.textarea}
+                    placeholder="Describe your company and material flows"
+                  />
+                </div>
               </div>
+            ) : null}
 
-              <label style={{ fontSize: '13px', fontWeight: '500', color: '#5c5c58' }}>
-                Company Name
-              </label>
-              <input
-                name="name"
-                type="text"
-                value={companyForm.name}
-                required
-                onChange={handleCompanyChange}
-                style={inputStyle}
-              />
+            <button type="submit" disabled={loading} className={styles.submitButton}>
+              {loading ? 'Please wait...' : isSignup ? 'Create Account' : 'Sign In'}
+            </button>
+          </form>
 
-              <label style={{ fontSize: '13px', fontWeight: '500', color: '#5c5c58' }}>
-                Sector
-              </label>
-              <input
-                name="sector"
-                type="text"
-                value={companyForm.sector}
-                required
-                onChange={handleCompanyChange}
-                style={inputStyle}
-              />
+          <p className={styles.modeRow}>
+            {isSignup ? 'Already have an account?' : "Don't have an account?"}
+            <button type="button" onClick={toggleMode} className={styles.modeButton}>
+              {isSignup ? 'Sign in' : 'Sign up'}
+            </button>
+          </p>
 
-              <label style={{ fontSize: '13px', fontWeight: '500', color: '#5c5c58' }}>
-                Location
-              </label>
-              <input
-                name="location"
-                type="text"
-                value={companyForm.location}
-                required
-                onChange={handleCompanyChange}
-                style={inputStyle}
-              />
+          {error ? <div className={`${styles.notice} ${styles.noticeError}`}>{error}</div> : null}
+          {message ? <div className={`${styles.notice} ${styles.noticeSuccess}`}>{message}</div> : null}
+        </section>
 
-              <label style={{ fontSize: '13px', fontWeight: '500', color: '#5c5c58' }}>
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={companyForm.description}
-                onChange={handleCompanyChange}
-                rows={3}
-                style={{ ...inputStyle, resize: 'vertical' }}
-                placeholder="Describe your company and material flows"
-              />
-            </>
-          )}
-
-          <button type="submit" disabled={loading} style={btnStyle}>
-            {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
-          </button>
-        </form>
-
-        <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#5c5c58' }}>
-          {mode === 'login' ? (
-            <>Don't have an account?{' '}
-              <span onClick={() => setMode('signup')}
-                style={{ color: '#2d6a2d', cursor: 'pointer', textDecoration: 'underline' }}>
-                Sign up
-              </span>
-            </>
-          ) : (
-            <>Already have an account?{' '}
-              <span onClick={() => setMode('login')}
-                style={{ color: '#2d6a2d', cursor: 'pointer', textDecoration: 'underline' }}>
-                Sign in
-              </span>
-            </>
-          )}
-        </div>
-
-        {error && (
-          <div style={{ marginTop: '16px', color: '#c62828', fontSize: '14px',
-            background: '#ffebee', padding: '10px', borderRadius: '6px' }}>
-            {error}
-          </div>
-        )}
-        {message && (
-          <div style={{ marginTop: '16px', color: '#2d6a2d', fontSize: '14px',
-            background: '#e8f5e9', padding: '10px', borderRadius: '6px' }}>
-            {message}
-          </div>
-        )}
-      </div>
+        <aside className={styles.sidePanel}>
+          <h2>Integrated Circular Operations</h2>
+          <p>
+            Once signed in, your workspace uses the same visual system and navigation style as the homepage across every
+            tool page.
+          </p>
+          <ul className={styles.featureList}>
+            <li>List waste streams and match with buyers in one flow.</li>
+            <li>Run compliance scans and capture evidence with shared context.</li>
+            <li>Return to Home instantly through unified navigation.</li>
+          </ul>
+        </aside>
+      </main>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { createListing } from "../api";
 import { useAuth } from "../components/useAuth";
+import styles from "./ToolSuite.module.css";
 
 const ListWaste = () => {
   const { user } = useAuth();
@@ -64,191 +65,118 @@ const ListWaste = () => {
     }
   };
 
-  const pageStyle = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-  };
-
-  const titleStyle = {
-    fontSize: "28px",
-    fontWeight: 700,
-    marginBottom: "4px",
-    color: "#111827",
-    textAlign: "center",
-  };
-
-  const subtitleStyle = {
-    fontSize: "14px",
-    color: "#6b7280",
-    marginBottom: "24px",
-    textAlign: "center",
-  };
-
-  const formContainerStyle = {
-    backgroundColor: "#ffffff",
-    maxWidth: "600px",
-    margin: "0 auto",
-    padding: "32px",
-    borderRadius: "8px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-  };
-
-  const fieldStyle = {
-    marginBottom: "20px",
-  };
-
-  const labelStyle = {
-    display: "block",
-    fontWeight: "bold",
-    marginBottom: "6px",
-    fontSize: "14px",
-    color: "#374151",
-  };
-
-  const inputStyle = {
-    width: "100%",
-    padding: "10px",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
-    fontSize: "14px",
-    boxSizing: "border-box",
-  };
-
-  const textareaStyle = {
-    ...inputStyle,
-    resize: "vertical",
-  };
-
-  const buttonStyle = {
-    backgroundColor: "#2d6a2d",
-    color: "#ffffff",
-    padding: "12px 32px",
-    border: "none",
-    borderRadius: "4px",
-    cursor: loading ? "default" : "pointer",
-    fontSize: "16px",
-  };
-
-  const successStyle = {
-    marginTop: "16px",
-    padding: "12px",
-    borderRadius: "4px",
-    backgroundColor: "#e8f5e9",
-    color: "#1b5e20",
-    fontSize: "14px",
-  };
-
-  const errorStyle = {
-    marginTop: "16px",
-    padding: "12px",
-    borderRadius: "4px",
-    backgroundColor: "#ffebee",
-    color: "#b71c1c",
-    fontSize: "14px",
-  };
-
   return (
-    <div style={pageStyle}>
-      <h1 style={titleStyle}>List a Waste Stream</h1>
-      <p style={subtitleStyle}>
-        List your industrial byproducts and get matched with licensed buyers
-        and recyclers
-      </p>
-
-      <div style={formContainerStyle}>
-        <form onSubmit={handleSubmit}>
-          <div style={fieldStyle}>
-            <label htmlFor="listing_type" style={labelStyle}>
-              I am a...
-            </label>
-            <select
-              id="listing_type"
-              name="listing_type"
-              value={formData.listing_type}
-              onChange={handleChange}
-              style={inputStyle}
-            >
-              <option value="seller">Seller - I have waste to offer</option>
-              <option value="buyer">Buyer - I am looking for material</option>
-            </select>
-          </div>
-
-          <div style={fieldStyle}>
-            <label htmlFor="material_type" style={labelStyle}>
-              Material Type
-            </label>
-            <input
-              id="material_type"
-              name="material_type"
-              type="text"
-              placeholder="e.g. Holzspäne, Kunststoffabfälle, Metallspäne"
-              value={formData.material_type}
-              onChange={handleChange}
-              style={inputStyle}
-              required
-            />
-          </div>
-
-          <div style={fieldStyle}>
-            <label htmlFor="volume_kg_per_month" style={labelStyle}>
-              Monthly Volume (kg)
-            </label>
-            <input
-              id="volume_kg_per_month"
-              name="volume_kg_per_month"
-              type="number"
-              min="0"
-              value={formData.volume_kg_per_month}
-              onChange={handleChange}
-              style={inputStyle}
-              required
-            />
-          </div>
-
-          <div style={fieldStyle}>
-            <label htmlFor="legal_classification" style={labelStyle}>
-              Legal Classification
-            </label>
-            <select
-              id="legal_classification"
-              name="legal_classification"
-              value={formData.legal_classification}
-              onChange={handleChange}
-              style={inputStyle}
-            >
-              <option value="sekundaerrohstoff">
-                Sekundärrohstoff (free trade)
-              </option>
-              <option value="abfall">
-                Abfall (licensed buyer required)
-              </option>
-            </select>
-          </div>
-
-          <div style={fieldStyle}>
-            <label htmlFor="description" style={labelStyle}>
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              rows={4}
-              placeholder="Describe the material, condition, availability"
-              value={formData.description}
-              onChange={handleChange}
-              style={textareaStyle}
-            />
-          </div>
-
-          <button type="submit" style={buttonStyle} disabled={loading}>
-            {loading ? "Submitting..." : "List Waste Stream"}
-          </button>
-        </form>
-
-        {successMessage && <div style={successStyle}>{successMessage}</div>}
-        {errorMessage && <div style={errorStyle}>{errorMessage}</div>}
+    <div className={styles.page}>
+      <div className={styles.pageHeader}>
+        <p className={styles.kicker}>Waste Exchange</p>
+        <h1 className={styles.title}>List a Waste Stream</h1>
+        <p className={styles.subtitle}>
+          Publish industrial byproducts, attract qualified buyers, and feed your compliance evidence timeline.
+        </p>
       </div>
+
+      <section className={styles.card}>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formGrid}>
+            <div className={styles.field}>
+              <label htmlFor="listing_type" className={styles.label}>
+                I am a...
+              </label>
+              <select
+                id="listing_type"
+                name="listing_type"
+                value={formData.listing_type}
+                onChange={handleChange}
+                className={styles.select}
+              >
+                <option value="seller">Seller - I have waste to offer</option>
+                <option value="buyer">Buyer - I am looking for material</option>
+              </select>
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="material_type" className={styles.label}>
+                Material Type
+              </label>
+              <input
+                id="material_type"
+                name="material_type"
+                type="text"
+                placeholder="e.g. Holzspane, Kunststoffabfalle, Metallspane"
+                value={formData.material_type}
+                onChange={handleChange}
+                className={styles.input}
+                required
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="volume_kg_per_month" className={styles.label}>
+                Monthly Volume (kg)
+              </label>
+              <input
+                id="volume_kg_per_month"
+                name="volume_kg_per_month"
+                type="number"
+                min="0"
+                value={formData.volume_kg_per_month}
+                onChange={handleChange}
+                className={styles.input}
+                required
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="legal_classification" className={styles.label}>
+                Legal Classification
+              </label>
+              <select
+                id="legal_classification"
+                name="legal_classification"
+                value={formData.legal_classification}
+                onChange={handleChange}
+                className={styles.select}
+              >
+                <option value="sekundaerrohstoff">Sekundarrohstoff (free trade)</option>
+                <option value="abfall">Abfall (licensed buyer required)</option>
+              </select>
+            </div>
+
+            <div className={`${styles.field} ${styles.fieldFull}`}>
+              <label htmlFor="description" className={styles.label}>
+                Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                rows={4}
+                placeholder="Describe the material, condition, and availability"
+                value={formData.description}
+                onChange={handleChange}
+                className={styles.textarea}
+              />
+            </div>
+          </div>
+
+          <div className={styles.inlineActions}>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`${styles.button} ${styles.buttonPrimary} ${loading ? styles.buttonDisabled : ""}`}
+            >
+              {loading ? "Submitting..." : "List Waste Stream"}
+            </button>
+          </div>
+
+          {successMessage ? (
+            <div className={`${styles.notice} ${styles.noticeSuccess}`}>{successMessage}</div>
+          ) : null}
+
+          {errorMessage ? (
+            <div className={`${styles.notice} ${styles.noticeError}`}>{errorMessage}</div>
+          ) : null}
+        </form>
+      </section>
     </div>
   );
 };

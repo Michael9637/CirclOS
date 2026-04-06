@@ -1,145 +1,97 @@
-import { Link, useLocation } from 'react-router-dom'
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from './useAuth'
+import styles from './Navbar.module.css'
 
-const demoLoginStorageKey = 'circlos_home_mock_login'
-const demoUserStorageKey = 'circlos_home_mock_user'
+const appLinks = [
+  { label: 'Home', to: '/' },
+  { label: 'Dashboard', to: '/app/dashboard' },
+  { label: 'Waste', to: '/app/list' },
+  { label: 'Compliance', to: '/app/compliance' },
+  { label: 'Scanner', to: '/app/scanner' },
+  { label: 'Evidence', to: '/app/evidence' },
+  { label: 'Profile', to: '/app/profile' },
+]
 
 export default function Navbar() {
   const { user, supabase } = useAuth()
-  const location = useLocation()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
-  const menuRef = useRef(null)
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+    const closeMenuOnEscape = (event) => {
+      if (event.key === 'Escape') {
         setMenuOpen(false)
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    window.addEventListener('keydown', closeMenuOnEscape)
+    return () => window.removeEventListener('keydown', closeMenuOnEscape)
   }, [])
 
-  function isActive(path) {
-    return location.pathname === path
+  const accountName = user?.email?.split('@')[0] || 'User'
+
+  const closeMenu = () => {
+    setMenuOpen(false)
   }
 
-  const linkStyle = (path) => ({
-    display: 'flex', alignItems: 'center', padding: '0 16px',
-    color: isActive(path) ? 'white' : 'rgba(255,255,255,0.65)',
-    textDecoration: 'none', fontSize: '14px', fontWeight: '500',
-    borderBottom: isActive(path) ? '2px solid #8BC34A' : '2px solid transparent',
-    height: '100%', transition: 'color 0.15s'
-  })
+  const handleLogout = async () => {
+    closeMenu()
+    if (supabase?.auth) {
+      await supabase.auth.signOut()
+    }
+    navigate('/')
+  }
 
   return (
-    <nav style={{
-      background: '#1a3a1a', padding: '0 32px', display: 'flex',
-      alignItems: 'stretch', height: '58px', position: 'sticky',
-      top: 0, zIndex: 100, boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-    }}>
-      <Link to="/app/dashboard" style={{
-        color: 'white', fontSize: '20px', fontWeight: '700',
-        textDecoration: 'none', display: 'flex', alignItems: 'center',
-        letterSpacing: '-0.5px'
-      }}>
-        Circl<span style={{ color: '#8BC34A' }}>OS</span>
-      </Link>
+    <header className={styles.header}>
+      <div className={styles.inner}>
+        <button type="button" className={styles.brand} onClick={() => navigate('/')} aria-label="Go to CirclOS homepage">
+          <span className={styles.brandMark}>C</span>
+          <span className={styles.brandName}>CirclOS</span>
+        </button>
 
-      <div style={{ display: 'flex', alignItems: 'stretch', marginLeft: '32px' }}>
-        <Link to="/" style={linkStyle('/')}>Home</Link>
-        <Link to="/app/dashboard" style={linkStyle('/app/dashboard')}>Dashboard</Link>
-        <Link to="/app/list" style={linkStyle('/app/list')}>List Waste</Link>
-        <Link to="/app/compliance" style={linkStyle('/app/compliance')}>Compliance</Link>
-        <Link to="/app/scanner" style={linkStyle('/app/scanner')}>Scanner</Link>
-        <Link to="/app/evidence" style={linkStyle('/app/evidence')}>Evidence</Link>
-      </div>
+        <button
+          type="button"
+          className={styles.menuToggle}
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-controls="app-primary-navigation"
+          aria-expanded={menuOpen}
+          aria-label="Toggle app navigation menu"
+        >
+          <span className={styles.menuToggleBar} />
+          <span className={styles.menuToggleBar} />
+          <span className={styles.menuToggleBar} />
+        </button>
 
-      {user && (
-        <div ref={menuRef} style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', position: 'relative' }}>
-          <button
-            onClick={() => setMenuOpen((prev) => !prev)}
-            style={{
-              background: 'rgba(255,255,255,0.1)',
-              color: 'white',
-              border: '1px solid rgba(255,255,255,0.2)',
-              padding: '8px 12px',
-              borderRadius: '8px',
-              fontSize: '13px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              maxWidth: '280px',
-            }}
-          >
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</span>
-            <span>{menuOpen ? '▲' : '▼'}</span>
-          </button>
-
-          {menuOpen && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '48px',
-                right: 0,
-                minWidth: '180px',
-                background: 'white',
-                borderRadius: '8px',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
-                border: '1px solid #e5e7eb',
-                overflow: 'hidden',
-              }}
+        <nav
+          id="app-primary-navigation"
+          aria-label="App"
+          className={`${styles.nav} ${menuOpen ? styles.navOpen : ''}`}
+        >
+          {appLinks.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              onClick={closeMenu}
+              className={({ isActive }) => `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
             >
-              <Link
-                to="/app/profile"
-                onClick={() => setMenuOpen(false)}
-                style={{
-                  display: 'block',
-                  textDecoration: 'none',
-                  color: '#111827',
-                  padding: '10px 12px',
-                  fontSize: '14px',
-                }}
-              >
-                Profile
-              </Link>
-              <button
-                onClick={async () => {
-                  setMenuOpen(false)
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
 
-                  if (supabase?.auth) {
-                    await supabase.auth.signOut()
-                  }
-
-                  if (typeof window !== 'undefined') {
-                    window.localStorage.removeItem(demoLoginStorageKey)
-                    window.localStorage.removeItem(demoUserStorageKey)
-                  }
-
-                  navigate('/')
-                }}
-                style={{
-                  width: '100%',
-                  textAlign: 'left',
-                  border: 'none',
-                  background: 'white',
-                  color: '#b91c1c',
-                  padding: '10px 12px',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                }}
-              >
-                Sign out
-              </button>
-            </div>
-          )}
+        <div className={`${styles.actions} ${menuOpen ? styles.actionsOpen : ''}`}>
+          <p className={styles.greeting}>Welcome, {accountName}!</p>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className={styles.logoutButton}
+          >
+            Log Out
+          </button>
         </div>
-      )}
-    </nav>
+      </div>
+    </header>
   )
 }

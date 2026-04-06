@@ -13,6 +13,7 @@ import Scanner from './pages/Scanner'
 import EvidenceRecords from './pages/EvidenceRecords'
 import { apiConfigError } from './api'
 import { supabaseConfigError } from './supabase'
+import styles from './App.module.css'
 
 export default function App() {
   const configErrors = [supabaseConfigError, apiConfigError].filter(Boolean)
@@ -29,6 +30,7 @@ export default function App() {
             <Route path="/list" element={<Navigate to="/app/list" replace />} />
             <Route path="/profile" element={<Navigate to="/app/profile" replace />} />
             <Route path="/register" element={<Navigate to="/app/profile" replace />} />
+            <Route path="/registercompany" element={<Navigate to="/login?mode=signup" replace />} />
             <Route path="/compliance" element={<Navigate to="/app/compliance" replace />} />
             <Route path="/scanner" element={<Navigate to="/app/scanner" replace />} />
             <Route path="/evidence" element={<Navigate to="/app/evidence" replace />} />
@@ -42,9 +44,9 @@ export default function App() {
 
 function AuthenticatedApp() {
   return (
-    <>
+    <div className={styles.appShell}>
       <Navbar />
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '32px 24px' }}>
+      <main className={styles.appMain}>
         <Routes>
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/list" element={<ProtectedRoute><ListWaste /></ProtectedRoute>} />
@@ -55,8 +57,8 @@ function AuthenticatedApp() {
           <Route path="/evidence" element={<ProtectedRoute><EvidenceRecords /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/app/dashboard" replace />} />
         </Routes>
-      </div>
-    </>
+      </main>
+    </div>
   )
 }
 

@@ -1,0 +1,426 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pageHeader {
+  display: grid;
+  gap: 6px;
+}
+
+.kicker {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #1f7a63;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.6rem, 2.5vw, 2rem);
+  line-height: 1.15;
+  color: #14241f;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 70ch;
+  line-height: 1.6;
+  color: #3a5450;
+}
+
+.stack {
+  display: grid;
+  gap: 14px;
+}
+
+.card {
+  border-radius: 14px;
+  border: 1px solid #dbe7e0;
+  background: #fff;
+  padding: 18px;
+  box-shadow: 0 8px 16px rgba(19, 60, 48, 0.07);
+}
+
+.cardHeaderRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #144535;
+}
+
+.metaRow {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  color: #3d5953;
+  font-size: 0.9rem;
+}
+
+.bodyText {
+  margin: 12px 0 0;
+  line-height: 1.6;
+  color: #3d5851;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.badgeSuccess {
+  color: #1f513d;
+  background: #bbf7d0;
+}
+
+.badgeWarning {
+  color: #834b00;
+  background: #fed7aa;
+}
+
+.badgeNeutral {
+  color: #334154;
+  background: #e5e7eb;
+}
+
+.button {
+  border-radius: 10px;
+  border: 1px solid transparent;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.buttonPrimary {
+  color: #fff;
+  background: linear-gradient(140deg, #1f7a63, #4caf50);
+  box-shadow: 0 8px 14px rgba(31, 122, 99, 0.2);
+}
+
+.buttonGhost {
+  color: #1f7a63;
+  border-color: rgba(31, 122, 99, 0.38);
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.buttonDanger {
+  color: #fff;
+  background: linear-gradient(135deg, #b42318, #d14334);
+}
+
+.buttonDisabled,
+.button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.inlineActions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.notice {
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.noticeMuted {
+  color: #365a51;
+  background: #f6fbf8;
+  border: 1px solid #d8e6df;
+}
+
+.noticeSuccess {
+  color: #14532d;
+  background: #e8f5e9;
+  border: 1px solid #b7e0bc;
+}
+
+.noticeError {
+  color: #9b1c1c;
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.label {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #284740;
+}
+
+.input,
+.select,
+.textarea {
+  border: 1px solid #c9d9d2;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.93rem;
+  background: #fff;
+  color: #14241f;
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.panelGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.panelCard {
+  border-radius: 12px;
+  border: 1px solid #dbe7e0;
+  background: #fff;
+  padding: 16px;
+  box-shadow: 0 8px 14px rgba(19, 60, 48, 0.07);
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 1.02rem;
+  color: #184f3f;
+}
+
+.panelText {
+  margin: 8px 0 12px;
+  color: #3b5851;
+  line-height: 1.55;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.statCard {
+  border-radius: 12px;
+  border: 1px solid #dbe7e0;
+  background: #fff;
+  padding: 16px;
+  text-align: center;
+}
+
+.statValue {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #174a3b;
+}
+
+.statLabel {
+  margin: 5px 0 0;
+  font-size: 0.82rem;
+  color: #4c6861;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.claimList {
+  display: grid;
+  gap: 12px;
+}
+
+.claimCard {
+  border-radius: 12px;
+  border: 1px solid transparent;
+  padding: 14px;
+}
+
+.claimProhibited {
+  background: #fdecea;
+  border-color: #f3c3bf;
+}
+
+.claimNeedsEvidence {
+  background: #fff8e1;
+  border-color: #f6e0a8;
+}
+
+.claimCompliant {
+  background: #e8f5e9;
+  border-color: #bfdebf;
+}
+
+.claimTopRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.claimQuote {
+  margin: 0;
+  font-style: italic;
+  color: #283c38;
+  line-height: 1.5;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+
+.tagProhibited {
+  background: #c62828;
+}
+
+.tagNeedsEvidence {
+  background: #e65100;
+}
+
+.tagCompliant {
+  background: #2e7d32;
+}
+
+.claimRisk {
+  margin-top: 8px;
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.74);
+  color: #314a45;
+  line-height: 1.5;
+}
+
+.subSection {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.subTitle {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #244b3f;
+}
+
+.subCard {
+  border-radius: 10px;
+  border: 1px solid #d7e4de;
+  background: #f8fcfa;
+  padding: 12px;
+}
+
+.progressTrack {
+  margin-top: 8px;
+  width: 100%;
+  height: 7px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #d7e4de;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(140deg, #1f7a63, #4caf50);
+}
+
+.timelineCard {
+  border-radius: 12px;
+  border: 1px solid #dbe7e0;
+  background: #fff;
+  padding: 16px;
+  box-shadow: 0 8px 14px rgba(19, 60, 48, 0.06);
+}
+
+.timelineTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #4a625c;
+  font-size: 0.82rem;
+}
+
+.timelineTitle {
+  margin: 8px 0 0;
+  font-size: 1.05rem;
+  color: #1c4d40;
+}
+
+.timelineMeta {
+  margin: 6px 0 0;
+  color: #3e5b54;
+  line-height: 1.45;
+}
+
+.certificate {
+  margin-top: 10px;
+  border-radius: 8px;
+  background: #f2f7f4;
+  padding: 10px;
+  font-size: 0.9rem;
+  color: #35534b;
+}
+
+@media (max-width: 900px) {
+  .panelGrid,
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

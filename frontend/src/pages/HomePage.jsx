@@ -12,10 +12,6 @@ const navItems = [
   { label: 'Resources', href: '#resources' },
 ]
 
-const demoLoginStorageKey = 'circlos_home_mock_login'
-const demoUserStorageKey = 'circlos_home_mock_user'
-const defaultDemoUser = 'CirclOS User'
-
 const toolPages = [
   { id: 'waste', label: 'Waste', path: '/app/list' },
   { id: 'compliance', label: 'Compliance', path: '/app/compliance' },
@@ -261,23 +257,11 @@ export default function HomePage() {
   const navigate = useNavigate()
   const { user, supabase } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isDemoLoggedIn, setIsDemoLoggedIn] = useState(() => {
-    if (typeof window === 'undefined') {
-      return false
-    }
-    return window.localStorage.getItem(demoLoginStorageKey) === 'true'
-  })
-  const [demoUserName, setDemoUserName] = useState(() => {
-    if (typeof window === 'undefined') {
-      return defaultDemoUser
-    }
-    return window.localStorage.getItem(demoUserStorageKey) || defaultDemoUser
-  })
   const [liveListingCount, setLiveListingCount] = useState(null)
   const [isListingCountLoading, setIsListingCountLoading] = useState(false)
 
-  const accountName = user?.email?.split('@')[0] || demoUserName
-  const isLoggedIn = Boolean(user) || isDemoLoggedIn
+  const accountName = user?.email?.split('@')[0] || 'User'
+  const isLoggedIn = Boolean(user)
 
   const visibleTrustMetrics = useMemo(() => {
     if (typeof liveListingCount !== 'number') {
@@ -326,17 +310,6 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
-    if (!user || typeof window === 'undefined') {
-      return
-    }
-
-    window.localStorage.removeItem(demoLoginStorageKey)
-    window.localStorage.removeItem(demoUserStorageKey)
-    setIsDemoLoggedIn(false)
-    setDemoUserName(defaultDemoUser)
-  }, [user])
-
-  useEffect(() => {
     let ignore = false
 
     if (apiConfigError) {
@@ -376,45 +349,18 @@ export default function HomePage() {
     navigate(path)
   }
 
-  const saveDemoSession = (isActive, name = defaultDemoUser) => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    if (isActive) {
-      window.localStorage.setItem(demoLoginStorageKey, 'true')
-      window.localStorage.setItem(demoUserStorageKey, name)
-      return
-    }
-
-    window.localStorage.removeItem(demoLoginStorageKey)
-    window.localStorage.removeItem(demoUserStorageKey)
-  }
-
-  const mockLogin = () => {
-    setIsMenuOpen(false)
-    setIsDemoLoggedIn(true)
-    setDemoUserName(defaultDemoUser)
-    saveDemoSession(true, defaultDemoUser)
-  }
-
   const logout = async () => {
     setIsMenuOpen(false)
 
-    if (user && supabase?.auth) {
+    if (supabase?.auth) {
       await supabase.auth.signOut()
-      navigate('/')
-      return
     }
 
-    setIsDemoLoggedIn(false)
-    setDemoUserName(defaultDemoUser)
-    saveDemoSession(false)
     navigate('/')
   }
 
   const openToolPage = (path) => {
-    if (isLoggedIn) {
+    if (user) {
       goTo(path)
       return
     }
@@ -479,7 +425,7 @@ export default function HomePage() {
               </>
             ) : (
               <>
-                <button type="button" className={`${styles.button} ${styles.buttonGhost}`} onClick={mockLogin}>
+                <button type="button" className={`${styles.button} ${styles.buttonGhost}`} onClick={() => goTo('/login')}>
                   Log In
                 </button>
                 <button
@@ -499,9 +445,7 @@ export default function HomePage() {
         <section className={styles.sessionStrip} aria-label="Logged in navigation shortcuts">
           <div className={styles.sessionStripInner}>
             <p className={styles.sessionStripStatus}>
-              {user
-                ? 'Signed in. Move between tools quickly and return to Home any time.'
-                : 'Demo mode active. Sign in to access full tool data and actions.'}
+              Signed in. Move between tools quickly and return to Home any time.
             </p>
             <div className={styles.sessionStripActions}>
               {toolPages.map((toolPage) => (
@@ -543,7 +487,7 @@ export default function HomePage() {
               requirements through evidence-backed workflows.
             </p>
             <p className={styles.heroStatus} role="status" aria-live="polite">
-              {isLoggedIn ? `Signed in as ${accountName}` : 'Guest mode: Sign in to open operational tools'}
+              {isLoggedIn ? `Signed in as ${accountName}` : 'Sign in to access Waste, Compliance, Scanner, and Evidence tools.'}
             </p>
             <div className={styles.heroCtas}>
               <button

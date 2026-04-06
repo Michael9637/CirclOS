@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createCompany, getMyCompany } from '../api'
 import { useAuth } from '../components/useAuth'
+import styles from './ToolSuite.module.css'
 
 export default function Profile() {
   const { user } = useAuth()
@@ -82,65 +83,59 @@ export default function Profile() {
   }
 
   return (
-    <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '28px', color: '#111827', marginBottom: '8px' }}>
-        Company Profile
-      </h1>
-      <p style={{ color: '#6b7280', marginBottom: '20px' }}>
-        Update your company details used for listings, matching, and compliance records.
-      </p>
+    <div className={styles.page}>
+      <div className={styles.pageHeader}>
+        <p className={styles.kicker}>Profile</p>
+        <h1 className={styles.title}>Company Profile</h1>
+        <p className={styles.subtitle}>Update company details used across listings, matching, and compliance workflows.</p>
+      </div>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{ background: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '24px' }}
-      >
-        <Field label="Company Name" name="name" value={formData.name} onChange={handleChange} required />
-        <Field label="Sector" name="sector" value={formData.sector} onChange={handleChange} required />
-        <Field label="Location" name="location" value={formData.location} onChange={handleChange} required />
+      <section className={styles.card}>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formGrid}>
+            <Field label="Company Name" name="name" value={formData.name} onChange={handleChange} required />
+            <Field label="Sector" name="sector" value={formData.sector} onChange={handleChange} required />
+            <Field label="Location" name="location" value={formData.location} onChange={handleChange} required />
 
-        <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', color: '#1f2937' }}>
-          Description
-        </label>
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          rows={4}
-          style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '6px', padding: '10px 12px', marginBottom: '16px' }}
-          placeholder="Describe your company and material flows"
-        />
+            <div className={`${styles.field} ${styles.fieldFull}`}>
+              <label className={styles.label}>Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={4}
+                className={styles.textarea}
+                placeholder="Describe your company and material flows"
+              />
+            </div>
+          </div>
 
-        <button
-          type="submit"
-          disabled={saving || loading}
-          style={{
-            background: saving || loading ? '#9ca3af' : '#14532d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            padding: '11px 18px',
-            fontWeight: 600,
-            cursor: saving || loading ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {loading ? 'Loading...' : saving ? 'Saving...' : 'Save Profile'}
-        </button>
+          <div className={styles.inlineActions}>
+            <button
+              type="submit"
+              disabled={saving || loading}
+              className={`${styles.button} ${styles.buttonPrimary} ${saving || loading ? styles.buttonDisabled : ''}`}
+            >
+              {loading ? 'Loading...' : saving ? 'Saving...' : 'Save Profile'}
+            </button>
+          </div>
 
-        {message && <div style={{ marginTop: '14px', color: '#166534', fontWeight: 600 }}>{message}</div>}
-        {error && <div style={{ marginTop: '14px', color: '#b91c1c', fontWeight: 600 }}>{error}</div>}
-      </form>
+          {message ? <div className={`${styles.notice} ${styles.noticeSuccess}`}>{message}</div> : null}
+          {error ? <div className={`${styles.notice} ${styles.noticeError}`}>{error}</div> : null}
+        </form>
+      </section>
     </div>
   )
 }
 
 function Field({ label, ...inputProps }) {
   return (
-    <>
-      <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', color: '#1f2937' }}>{label}</label>
+    <div className={styles.field}>
+      <label className={styles.label}>{label}</label>
       <input
         {...inputProps}
-        style={{ width: '100%', border: '1px solid #d1d5db', borderRadius: '6px', padding: '10px 12px', marginBottom: '16px' }}
+        className={styles.input}
       />
-    </>
+    </div>
   )
 }

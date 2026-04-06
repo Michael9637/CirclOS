@@ -1,0 +1,160 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  border-bottom: 1px solid #d7e3dd;
+  background: rgba(244, 241, 236, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+}
+
+.brand {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.brandMark {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(140deg, #1f7a63, #4caf50);
+  box-shadow: 0 10px 16px rgba(31, 122, 99, 0.24);
+}
+
+.brandName {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #1a1a1a;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.navLink {
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #3f5a53;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navLink:hover {
+  color: #1f7a63;
+  background: rgba(31, 122, 99, 0.08);
+}
+
+.navLinkActive {
+  color: #145b48;
+  background: rgba(31, 122, 99, 0.14);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.greeting {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #224c40;
+}
+
+.logoutButton {
+  border-radius: 10px;
+  border: 1px solid rgba(31, 122, 99, 0.45);
+  padding: 8px 13px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1f7a63;
+  background: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.logoutButton:hover {
+  background: rgba(31, 122, 99, 0.09);
+  transform: translateY(-1px);
+}
+
+.menuToggle {
+  display: none;
+  border: 1px solid #d7e3dd;
+  border-radius: 10px;
+  padding: 8px;
+  background: #fff;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.menuToggleBar {
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: #23463c;
+}
+
+@media (max-width: 1060px) {
+  .inner {
+    grid-template-columns: auto auto;
+  }
+
+  .menuToggle {
+    display: inline-flex;
+    justify-self: end;
+  }
+
+  .nav {
+    display: none;
+    grid-column: 1 / -1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #d7e3dd;
+    background: #fff;
+  }
+
+  .navOpen {
+    display: flex;
+  }
+
+  .actions {
+    display: none;
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+  }
+
+  .actionsOpen {
+    display: flex;
+  }
+}

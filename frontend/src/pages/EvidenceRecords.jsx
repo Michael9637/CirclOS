@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getEvidenceRecords } from "../api";
 import { useAuth } from "../components/useAuth";
+import styles from "./ToolSuite.module.css";
 
 const EvidenceRecords = () => {
   const { user } = useAuth();
@@ -33,84 +34,42 @@ const EvidenceRecords = () => {
   }, [user?.id]);
 
   if (loading) {
-    return <p style={{ color: "#6b7280" }}>Loading evidence records...</p>;
+    return <div className={`${styles.notice} ${styles.noticeMuted}`}>Loading evidence records...</div>;
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-      <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#111827" }}>
-        Evidence Timeline
-      </h1>
-      <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "10px" }}>
-        Confirmed circular transactions with timestamped evidence records.
-      </p>
+    <div className={styles.page}>
+      <div className={styles.pageHeader}>
+        <p className={styles.kicker}>Evidence</p>
+        <h1 className={styles.title}>Evidence Timeline</h1>
+        <p className={styles.subtitle}>Confirmed circular transactions with timestamped, auditable evidence records.</p>
+      </div>
 
-      {error && (
-        <div
-          style={{
-            background: "#ffebee",
-            border: "1px solid #ffcdd2",
-            borderRadius: "8px",
-            padding: "12px 14px",
-            color: "#b71c1c",
-            marginBottom: "10px",
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error ? <div className={`${styles.notice} ${styles.noticeError}`}>{error}</div> : null}
 
-      {records.length === 0 && (
-        <div
-          style={{
-            background: "#f9fafb",
-            border: "1px solid #e5e7eb",
-            borderRadius: "8px",
-            padding: "18px",
-            color: "#4b5563",
-          }}
-        >
+      {records.length === 0 ? (
+        <div className={`${styles.notice} ${styles.noticeMuted}`}>
           No evidence records yet. Confirm a match on the dashboard to generate your first record.
         </div>
-      )}
+      ) : null}
 
-      {records.map((record) => (
-        <div
-          key={record.id}
-          style={{
-            background: "#ffffff",
-            borderRadius: "8px",
-            padding: "16px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-            borderLeft: "5px solid #1a3a1a",
-          }}
-        >
-          <div style={{ fontSize: "12px", color: "#6b7280" }}>
-            Confirmed at {record.confirmed_at ? new Date(record.confirmed_at).toLocaleString() : "unknown"}
-          </div>
-          <div style={{ marginTop: "8px", fontSize: "18px", fontWeight: 700, color: "#1f2937" }}>
-            {record.material_type || "Material not specified"}
-          </div>
-          <div style={{ marginTop: "6px", fontSize: "14px", color: "#374151" }}>
-            Volume: {record.volume_kg || 0} kg
-          </div>
-          <div style={{ marginTop: "4px", fontSize: "14px", color: "#374151" }}>
-            AWG classification: {record.awg_classification || "n/a"}
-          </div>
-          <div
-            style={{
-              marginTop: "10px",
-              background: "#f3f4f6",
-              borderRadius: "6px",
-              padding: "10px",
-              fontSize: "13px",
-              color: "#374151",
-            }}
-          >
-            {record.certificate_text || "No certificate text available."}
-          </div>
-        </div>
-      ))}
+      <div className={styles.stack}>
+        {records.map((record) => (
+          <article key={record.id} className={styles.timelineCard}>
+            <div className={styles.timelineTop}>
+              <span>Confirmed at {record.confirmed_at ? new Date(record.confirmed_at).toLocaleString() : "unknown"}</span>
+              <span>Record #{record.id}</span>
+            </div>
+
+            <h2 className={styles.timelineTitle}>{record.material_type || "Material not specified"}</h2>
+
+            <p className={styles.timelineMeta}>Volume: {record.volume_kg || 0} kg</p>
+            <p className={styles.timelineMeta}>AWG classification: {record.awg_classification || "n/a"}</p>
+
+            <div className={styles.certificate}>{record.certificate_text || "No certificate text available."}</div>
+          </article>
+        ))}
+      </div>
     </div>
   );
 };
